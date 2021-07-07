@@ -1,0 +1,1762 @@
+%%
+%% This is file `easybase.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% easybook.dtx  (with options: `package')
+%% Copyright (C) 2021 by Qu Yi <quee123@foxmail.com>
+%% 
+%% This work may be distributed and/or modified under the
+%% conditions of the CC-BY 4.0 License.
+%% The latest version of this license is in
+%%   https://creativecommons.org/licenses/by/4.0/legalcode
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\RequirePackage{etoolbox}
+\ProvidesExplPackage{easybase}{2021/07/06}{1.26x}
+  {Typeset Chinese theses or books}
+
+\cs_generate_variant:Nn \eb_ctex_define:nn { nx }
+\cs_generate_variant:Nn \int_to_arabic:n { v }
+\cs_generate_variant:Nn \int_to_alph:n { v }
+\cs_generate_variant:Nn \dim_add:Nn { NV,Nv }
+\cs_generate_variant:Nn \eb_put_hyperref:n { x }
+\cs_generate_variant:Nn \seq_set_from_clist:Nn { No }
+\cs_generate_variant:Nn \int_compare:nNnT { oNnT }
+\cs_generate_variant:Nn \prop_set_from_keyval:Nn { NV }
+\cs_generate_variant:Nn \eb_at_begin_environment:nn { on }
+\cs_new_protected:Npn \eb_ctex_define:nn #1
+  { \keys_define:nn { ctex/#1 } }
+\cs_new_protected:Npn \eb_clist_map_inline:nn #1#2
+  {
+    \seq_set_from_clist:Nn \l_tmpa_seq {#1}
+    \seq_map_inline:Nn \l_tmpa_seq {#2}
+  }
+\cs_new_protected:Npn \eb_clist_map_function:nN #1#2
+  {
+    \seq_set_from_clist:Nn \l_tmpb_seq {#1}
+    \seq_map_function:NN \l_tmpb_seq #2
+  }
+\cs_new_protected:Npn \eb_patch_cmd:Nnn #1#2#3
+  {
+    \ctex_patch_cmd_once:NnnnTF #1 { } {#2} {#3}
+      { } { \ctex_patch_failure:N #1 }
+  }
+\cs_new_protected:Npn \eb_patch_cmd:nnn #1#2#3
+  {
+    \eb_clist_map_inline:nn {#1}
+      { \eb_patch_cmd:Nnn ##1 {#2} {#3} }
+  }
+\cs_new_protected:Npn \eb_preto_cmd:Nn #1#2
+  {
+    \ctex_preto_cmd:NnnTF #1 { } {#2}
+      { } { \ctex_patch_failure:N #1 }
+  }
+\cs_new_protected:Npn \eb_appto_cmd:Nn #1#2
+  {
+    \ctex_appto_cmd:NnnTF #1 { } {#2}
+      { } { \ctex_patch_failure:N #1 }
+  }
+\cs_new_protected:Npn \eb_at_begin_environment:nn #1#2
+  {
+    \eb_clist_map_inline:nn {#1}
+      { \AtBeginEnvironment{##1}{#2} }
+  }
+\cs_new_protected:Npn \eb_match_load_package:n #1
+  {
+    \tl_if_in:nnTF {#1} { [ }
+      {
+        \seq_set_split:Nnn \l_tmpa_seq { [ } {#1}
+        \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl
+        \IfFileExists{\l_tmpa_tl.sty}
+          {
+            \exp_last_unbraced:Nx \RequirePackage
+              { [\seq_use:Nn \l_tmpa_seq { , } }{\l_tmpa_tl}
+          }{}
+      }
+      { \IfFileExists{#1.sty}{\RequirePackage{#1}}{} }
+  }
+\NewDocumentCommand{\LoadPackage}{O{}m}
+  {
+    \seq_set_split:Nnn \l__eb_package_names_seq { + } {#2}
+    \int_compare:oNnT
+      { \seq_count:N \l__eb_package_names_seq } = { 1 }
+      { \PassOptionsToPackage{#1}{#2} }
+    \seq_map_function:NN
+    \l__eb_package_names_seq \eb_match_load_package:n
+  }
+\cs_new_protected:Npn \eb_at_end_preamble:n
+  { \BeforeBeginEnvironment{document} }
+\cs_gset_eq:NN \PackageWarning \PackageInfo
+
+\bool_if_exist:NF \l__eb_class_book_bool
+  { \bool_set_true:N \l__eb_class_book_bool }
+\bool_if_exist:NF \l__eb_page_twoside_bool
+  { \bool_set_true:N \l__eb_page_twoside_bool }
+\bool_if_exist:NF \l__eb_compile_draft_bool
+  { \bool_set_false:N \l__eb_compile_draft_bool }
+
+\keys_define:nn { easybase }
+  {
+    draft .code:n         = \bool_set_true:N \l__eb_compile_draft_bool,
+    floatpage .bool_set:N = \l__eb_float_page_bool,
+    floatpage .default:n  = true,
+    floatpage .initial:n  = false,
+
+    paper .choice:,
+    paper .value_required:n = true,
+    paper/unknown .code:n   = \PassOptionsToPackage{#1}{geometry},
+    paper .initial:n        = a4paper,
+
+    class .choice:,
+    class .value_required:n = true,
+    class/book .code:n      = { },
+    class/article .code:n   =
+      {
+        \bool_set_false:N \l__eb_class_book_bool
+        \bool_set_false:N \l__eb_page_twoside_bool
+      },
+    class .initial:n        = book,
+    book .meta:n            = { class = #1 },
+    article .meta:n         = { class = #1 }
+  }
+
+\clist_map_inline:nn
+  {
+    { protrusion = false } { microtype },
+    { list = off } { bicaption },
+    { many } { tcolorbox },
+    { xindy } { imakeidx },
+    { upint } { newtxmath },
+    { svgnames } { xcolor }
+  }
+  { \PassOptionsToPackage #1 }
+\ProcessKeysOptions{easybase}
+
+\bool_new:N \l__eb_multoc_bool
+\bool_new:N \l__eb_mark_uppercase_bool
+\bool_new:N \l__eb_chap_counter_withpart_bool
+\tl_new:N   \l__eb_foot_counter_parent_choice_tl
+
+\eb_clist_map_inline:nn
+  {
+    style,subfont,spread,
+    refset,bibset,thmset,
+    geoset,hdrset,tocset
+  }
+  {
+    \ctex_define:n { #1 .meta:nn = { ctex/#1 } {##1} }
+    \cs_new:cpn {#1} ##1 { \keys_set:nn { ctex/#1 } {##1} }
+  }
+\keys_define:nn { } { ctex/link .inherit:n = ctex/refset }
+\cs_set_eq:NN \link \refset
+\cs_if_exist:NF \chapter
+  {
+    \newcounter{chapter}
+    \bool_set_false:N \l__eb_class_book_bool
+    \ctex_define:n { chapter/tocline .code:n = { } }
+  }
+\bool_if:NF \l__eb_class_book_bool
+  {
+    \cs_undefine:N \chapter
+    \ctex_after_end_preamble:n
+      {
+        \NewDocumentCommand{\chapter}{som}
+          {\msg_error:nn { easybase } { no-chapter }}
+      }
+  }
+\msg_new:nnn { easybase } { no-chapter }
+  {
+    Your~document~class~is~in~article~mode. \\
+    The~\string\chapter\space~command~will~not~be~used.
+  }
+\ctex_define:n
+  {
+    link .meta:nn                 = { ctex/link } {#1},
+    lstlistlistingname .tl_set:N  = \listlstlistingname,
+    lstlistingname .tl_set:N      = \lstlistingname
+  }
+\eb_ctex_define:nn { style }
+  {
+    multoc .bool_set:N    = \l__eb_multoc_bool,
+    multoc .default:n     = true,
+    withpart .bool_set:N  = \l__eb_chap_counter_withpart_bool,
+    withpart .default:n   = true,
+    withpart .initial:n   = false,
+    rulewidth .dim_set:N  = \l__eb_rule_width_dim,
+    rulewidth .initial:n  = 0.75pt,
+    uppercase .bool_set:N = \l__eb_mark_uppercase_bool,
+    uppercase .default:n  = true,
+    uppercase .initial:n  = true,
+    figurepath .tl_set:N  = \l_eb_graphics_path_tl,
+
+    footwith .choices:nn        =
+      { part,page,chapter }
+      {
+        \tl_set_eq:NN
+        \l__eb_foot_counter_parent_choice_tl \l_keys_choice_tl
+      },
+    footwith .value_required:n  = true,
+    footwith .initial:n         = chapter,
+
+    figure-con .tl_set:N    = \l__eb_figure_connector_tl,
+    table-con .tl_set:N     = \l__eb_table_connector_tl,
+    listing-con .tl_set:N   = \l__eb_lstlisting_connector_tl,
+    equation-con .tl_set:N  = \l__eb_equation_connector_tl,
+    number-con .meta:n      =
+      {
+        figure-con    = #1,
+        table-con     = #1,
+        listing-con   = #1,
+        equation-con  = #1
+      },
+    number-con .initial:n   = { . }
+  }
+
+\LoadPackage
+  {
+    footmisc[stable,bottom]+
+    spbmark[ctex]+
+    ulem[normalem]+
+    enumitem[shortlabels,inline]+
+    chemformula+siunitx+pifont+
+    amsthm+thmtools+
+    geometry+marginnote+nccfoots+
+    pdfpages+multicol+
+    fancyhdr+titletoc+caption+
+    tabularray+
+    setspace+
+    listings
+  }
+\cs_new_protected:Npn \eb_package_date_check:nn #1#2
+  {
+    \IfPackageAtLeastTF{#1}{#2}
+      {}{\msg_warning:nnn { easybase } { package-old } {#1}}
+  }
+\msg_new:nnn { easybase } { package-old }
+  {
+    Package~#1~has~been~out~of~date. \\
+    Some~problems~or~errors~may~occur \\
+    if~you~continue~compiling. \\\\
+    Please~update~your~macro~package~from~CTAN.
+  }
+\clist_map_inline:nn
+  {
+    { expl3 } { 2020/10/27 },
+    { xparse } { 2020/10/27 },
+    { l3keys2e } { 2020/10/27 },
+    { thmtools } { 2020/08/01 },
+    { caption } { 2020/08/24 },
+    { fancyhdr } { 2021/01/28 },
+    { siunitx } { 2021/06/22 },
+    { tabularray } { 2021/07/01 }
+  }
+  { \eb_package_date_check:nn #1 }
+
+\includepdfset{fitpaper = true}
+\geometry
+  {
+    vmargin         = 2.54cm,
+    hmargin         = 3.17cm,
+    columnsep       = 2\ccwd,
+    headheight      = 2.04cm,
+    headsep         = 0.5cm,
+    footskip        = 0.79cm,
+    footnotesep     = 0.5cm,
+    marginparsep    = 8pt,
+    marginparwidth  = 2.54cm
+  }
+\clist_new:N \g__eb_geometry_clist
+\eb_ctex_define:nn { geoset }
+  {
+    headruleskip .tl_set:N  = \headruleskip,
+    headruleskip .initial:n = 1.5pt,
+    footruleskip .tl_set:N  = \footruleskip,
+    unknown .code:n =
+      {
+        \clist_gput_right:Nx \g__eb_geometry_clist
+          {
+            \l_keys_key_str
+            \tl_if_empty:NF \l_keys_value_tl { = {#1} }
+          }
+      }
+  }
+
+\RenewDocumentCommand{\cleardoublepage}{O{empty}}
+  {
+    \clearpage
+    \bool_if:NT \l__eb_page_twoside_bool
+      {
+        \int_if_odd:nF { \c@page }
+          { \hbox:n { }\thispagestyle{#1}\clearpage }
+      }
+  }
+\DeclareDocumentCommand{\frontmatter}{sO{Roman}}
+  {
+    \IfBooleanTF{#1}{\clearpage}{\cleardoublepage}
+    \boolfalse{@mainmatter}
+    \pagenumbering{#2}
+  }
+\DeclareDocumentCommand{\mainmatter}{s}
+  {
+    \IfBooleanTF{#1}{\clearpage}{\cleardoublepage}
+    \booltrue{@mainmatter}
+    \pagenumbering{arabic}
+  }
+\eb_clist_map_inline:nn
+  { chapter,section,subsection }
+  {
+    \exp_args:Nc \NewDocumentCommand { eb@mark@#1@label@layout }
+      {O{\use:c { CTEXthe#1 }}m}
+      {\tl_set:cn { eb@mark@#1@label } {##1##2}}
+    \cs_new:cpn { eb_mark_#1_number_bool:n } ##1
+      {
+        \tl_if_in:nnTF {##1} { [ }
+          { \use:c { eb@mark@#1@label@layout }##1 }
+          { \use:c { eb@mark@#1@label@layout }{##1} }
+      }
+  }
+
+\tl_new:N \l__eb_fnmark_number_choice_tl
+\cs_gset_eq:NN \easyhead \fancyhead
+\cs_gset_eq:NN \easyfoot \fancyfoot
+\NewDocumentCommand{\markrule}
+  {O{\textwidth}D(){ctex@frame}m>{\SplitArgument{1}{+}}O{}}
+  {\eb_draw_markrule:nnnnn {#1} {#2} {#3} #4}
+\cs_new_protected:Npn \eb_draw_markrule:nnnnn #1#2#3#4#5
+  {
+    \group_begin:
+    \tl_if_empty:nF {#4} { \vspace*{#4} }
+    \color{#2}\hrule\@width #1\@height #3
+    \tl_if_novalue:nF {#5} { \vspace*{#5} }
+    \group_end:
+  }
+\cs_new:Npn \eb_fnmark_counter_pifont:N #1
+  { \ding{\int_eval:n { 171 + #1 }} }
+\cs_new:Npn \eb_fnmark_counter_pifont_neg:N #1
+  { \ding{\int_eval:n { 181 + #1 }} }
+\cs_new:Npn \eb_fnmark_counter_pifont_sans:N #1
+  { \ding{\int_eval:n { 191 + #1 }} }
+\cs_new:Npn \eb_fnmark_counter_pifont_sans_neg:N #1
+  { \ding{\int_eval:n { 201 + #1 }} }
+\cs_new:Npn \eb_footnote_counter:N #1
+  {
+    \str_case:VnF \l__eb_fnmark_number_choice_tl
+      {
+        { plain } { \int_use:N #1 }
+        { pifont } { \eb_fnmark_counter_pifont:N #1 }
+        { pifont* } { \eb_fnmark_counter_pifont_neg:N #1 }
+        { pifont-sans } { \eb_fnmark_counter_pifont_sans:N #1 }
+        { pifont-sans* } { \eb_fnmark_counter_pifont_sans_neg:N #1 }
+      }
+      { \int_use:N #1 }
+  }
+\eb_ctex_define:nn { hdrset }
+  {
+    head-foot .tl_set:N   = \l__eb_fancyhf_content_tl,
+    head-foot .initial:n  =
+      {
+        \bool_if:NTF \l__eb_page_twoside_bool
+          {
+            \easyhead[EC]{\color{ctex@frame}\kaishu\leftmark}
+            \easyhead[OC]{\color{ctex@frame}\kaishu\rightmark}
+            \easyhead[EL,OR]{\color{ctex@frame}\thepage}
+          }
+          {
+            \easyhead[L]{\color{ctex@frame}\kaishu\leftmark}
+            \easyhead[R]{\color{ctex@frame}\thepage}
+          }
+      },
+
+    chap-mark .cs_set:Np    = \eb_fancyhf_chapter_mark:n #1,
+    chap-mark .initial:n    =
+      { \CTEXifname{\eb@mark@chapter@label}{}#1 },
+    sec-mark .cs_set:Np     = \eb_fancyhf_section_mark:n #1,
+    sec-mark .initial:n     =
+      { \CTEXifname{\eb@mark@section@label}{}#1 },
+    subsec-mark .cs_set:Np  = \eb_fancyhf_subsection_mark:n #1,
+    subsec-mark .initial:n  =
+      { \CTEXifname{\eb@mark@subsection@label}{}#1 },
+    chap-label .code:n      = \eb_mark_chapter_number_bool:n {#1},
+    chap-label .initial:n   = \hspace{\ccwd},
+    sec-label .code:n       = \eb_mark_section_number_bool:n {#1},
+    sec-label .initial:n    = \hspace{0.5\ccwd},
+    subsec-label .code:n    = \eb_mark_subsection_number_bool:n {#1},
+    subsec-label .initial:n = \hspace{0.5\ccwd},
+
+    headrule .tl_gset:N     = \headrule,
+    headrule .initial:n     = \markrule{\l__eb_rule_width_dim},
+    footrule .tl_gset:N     = \footrule,
+    footrule .initial:n     = { },
+    footnoterule .tl_gset:N = \footnoterule,
+    footnoterule .initial:n =
+      { \markrule[0.35\textwidth]{\l__eb_rule_width_dim}[+2.6pt] },
+
+    fnmargin .dim_set:N     = \footnotemargin,
+    fnmargin .initial:n     = 0.75\ccwd,
+    fnparskip .tl_set:N     = \hangfootparskip,
+    fnparskip .initial:n    = 0ex,
+    fnparindent .tl_set:N   = \hangfootparindent,
+    fnparindent .initial:n  = 2\ccwd,
+
+    fnhang .bool_set:N      = \l__eb_footnote_hang_bool,
+    fnhang .default:n       = true,
+    fnhang .initial:n       = true,
+    fnmark-pos .tl_set:N    = \l__eb_fnmark_position_tl,
+    fnmark-pos .initial:n   = super,
+    afterfnmark .tl_set:N   = \l__eb_fnmark_after_tl,
+    afterfnmark .initial:n  =
+      { \tl_if_eq:NnF \l__eb_fnmark_position_tl { super } { \space } },
+    fnmark-form .tl_set:N   = \l__eb_fnmark_format_tl,
+
+    fnmark-num .choices:nn        =
+      { plain,pifont,pifont*,pifont-sans,pifont-sans* }
+      {
+        \tl_gset_eq:NN
+        \l__eb_fnmark_number_choice_tl \l_keys_choice_tl
+      },
+    fnmark-num .value_required:n  = true
+  }
+
+\cs_set_eq:NN \eb_mark_uppercase:n \text_uppercase:n
+\cs_set_eq:NN \eb_mark_nouppercase:n \text_titlecase_first:n
+\cs_new:Npn \eb_mark_uppercase_bool:nn #1#2
+  {
+    \bool_if:NTF \l__eb_mark_uppercase_bool
+      { \eb_mark_uppercase:n }
+      { \eb_mark_nouppercase:n }{\use:c { eb_fancyhf_#1_mark:n } {#2}}
+  }
+\cs_new:Npn \eb@level@markdouble #1#2
+  {
+    \markboth
+      {\eb_mark_uppercase_bool:nn {#1} {#2}}
+      {
+        \bool_if:NT \l__eb_page_twoside_bool
+          { \eb_mark_uppercase_bool:nn {#1} {#2} }
+      }
+  }
+\cs_new:Npn \eb@level@markright #1#2
+  { \markright{\eb_mark_uppercase_bool:nn {#1} {#2}} }
+\cs_new:Npn \eb@level@section@mark #1
+  {
+    \bool_if:NTF \l__eb_class_book_bool
+      { \eb@level@markright{section}{#1} }
+      { \eb@level@markdouble{section}{#1} }
+  }
+\cs_new:Npn \eb@level@subsection@mark #1
+  {
+    \bool_if:NF \l__eb_class_book_bool
+      { \eb@level@markright{subsection}{#1} }
+  }
+\ctex_at_end_preamble:n
+  {
+    \exp_args:NV \geometry \g__eb_geometry_clist
+    \fancyhf{}
+    \tl_use:N \l__eb_fancyhf_content_tl
+    \cs_gset_eq:NN \ps@plain \ps@empty
+    \pagestyle{fancy}
+    \cs_gset:Npn \chaptermark #1 { \eb@level@markdouble{chapter}{#1} }
+    \cs_gset_eq:NN \sectionmark \eb@level@section@mark
+    \cs_gset_eq:NN \subsectionmark \eb@level@subsection@mark
+    \bool_if:NT \l__eb_compile_draft_bool
+      {
+        \easyfoot[C]{\color{SlateGray}\sffamily\today}
+        \geometry{showframe}
+      }
+    \tl_if_empty:NF \l_eb_graphics_path_tl
+      { \exp_args:NV \graphicspath \l_eb_graphics_path_tl }
+    \cs_if_exist:NF \kaishu { \cs_gset_eq:NN \kaishu \itshape }
+  }
+
+\eb_at_end_preamble:n
+  {
+    \group_begin:
+    \footnotesize
+    \exp_args:Nx
+    \linespread{\fp_use:N \l__eb_spread_footnote_fp}\selectfont
+    \exp_args:NNNo \group_end:
+    \dim_set:Nn \footnotesep { \dim_use:N \box_ht:N \strutbox }
+    \bool_if:NT \l__eb_chap_counter_withpart_bool
+      { \counterwithin*{chapter}{part} }
+    \str_case:Vn \l__eb_foot_counter_parent_choice_tl
+      {
+        { part } { \counterwithin*{footnote}{part} }
+        { page } { \counterwithin*{footnote}{page} }
+      }
+    \bool_if:NTF \l__eb_footnote_hang_bool
+      { \booltrue{FN@hangfoot} }
+      { \boolfalse{FN@hangfoot} }
+  }
+\eb_patch_cmd:nnn { \@footnotetext,\@mpfootnotetext }
+  { \reset@font }
+  {
+    \linespread{\fp_use:N \l__eb_spread_footnote_fp}
+    \selectfont\ignorespaces
+    \l__eb_subfont_footnote_tl
+  }
+\providecommand{\super}{\textsuperscript}
+\providecommand{\spb@textsuperscript@save}{\textsuperscript}
+\ctex_after_end_preamble:n
+  {
+    \ExplSyntaxOn\char_set_catcode_letter:N \@
+    \eb_patch_cmd:nnn { \H@@footnotemark,\@footnotemark }
+      { \@makefnmark }
+      {
+        \hbox:n
+          {
+            \tl_use:N \l__eb_subfont_footnote_tl
+            \tl_use:N \l__eb_fnmark_format_tl
+              {\super{\@thefnmark}[0pt]}
+          }
+      }
+    \ExplSyntaxOff\char_set_catcode_other:N \@
+  }
+\cs_set:Npn \@makefnmark
+  {
+    \hbox:n
+      {
+        \tl_use:N \l__eb_subfont_footnote_tl
+        \tl_use:N \l__eb_fnmark_format_tl
+          {
+            \tl_if_eq:NnT \l__eb_fnmark_position_tl { super }
+              { \spb@textsuperscript@save }{\@thefnmark}
+            \tl_use:N \l__eb_fnmark_after_tl
+          }
+      }
+  }
+\cs_new:Npn \eb_alph:n #1 { \int_to_alph:v { c@#1 } }
+\cs_set:Npn \thefootnote { \eb_footnote_counter:N \c@footnote }
+\cs_set:Npn \thempfootnote { \eb_alph:n { mpfootnote } }
+
+\contentsuse{lstlisting}{lol}
+\seq_const_from_clist:Nn \c__eb_toc_heading_level_seq
+  { part,chapter,section,subsection,figure,table,lstlisting }
+\cs_new_protected:Npn \eb_toc_assign_keys:n #1
+  {
+    \ctex_define:n { tocset/#1 .meta:nn = { ctex/tocset/#1 } {##1} }
+    \eb_ctex_define:nn { tocset }
+      {
+        #1/format .tl_set:c   = l__eb_toc_#1_format_tl,
+        #1/format+ .code:n    =
+          { \tl_put_right:cn { l__eb_toc_#1_format_tl } {##1} },
+        #1/format~+ .code:n   =
+          { \tl_put_right:cn { l__eb_toc_#1_format_tl } {##1} },
+        #1/indent .dim_set:c  = l__eb_toc_#1_indent_dim,
+        #1/rule .tl_set:c     = l__eb_toc_#1_rule_tl,
+        #1/numsep .tl_set:c   = eb@toc@#1@numsep
+      }
+    \seq_if_in:NnF \c__eb_toc_heading_level_seq { subsection }
+      {
+        \eb_ctex_define:nn { tocset }
+          { #1/belowoffset .dim_set:c = l__eb_toc_#1_offset_dim }
+      }
+    \seq_pop:NN \c__eb_toc_heading_level_seq \l_tmpa_tl
+    \titlecontents{#1}
+      [\dim_use:c { l__eb_toc_#1_indent_dim }]
+      {\tl_use:c { l__eb_toc_#1_format_tl }}
+      {
+        \ifbool{eb@titletoc@hang@fix}
+          {
+            \contentspush
+              {
+                \bool_if:NT \l__eb_toc_number_color_bool
+                  { \color{ctex@toc@number} }
+                \thecontentslabel
+                \hspace{\use:c { eb@toc@#1@numsep }}
+              }
+          }{}
+      }{}
+      {\tl_use:c { l__eb_toc_#1_rule_tl }}
+  }
+\seq_map_function:NN
+\c__eb_toc_heading_level_seq \eb_toc_assign_keys:n
+\ctex_define:n { tocset/list .meta:nn = { ctex/tocset/list } {#1} }
+\eb_clist_map_inline:nn
+  { format,format+,format~+,indent,rule,numsep,belowoffset }
+  {
+    \eb_ctex_define:nn { tocset }
+      {
+        list/#1 .meta:n   =
+          {
+            figure/#1     = ##1,
+            table/#1      = ##1,
+            lstlisting/#1 = ##1
+          }
+      }
+  }
+
+\cs_new:Npn \EBNumberLine #1
+  {
+    \CTEXifname
+      {
+        \use:c { CTEXthe#1 }
+        \hspace{\use:c { eb@toc@#1@numsep }}
+      }{}
+  }
+\newbool{eb@titletoc@hang@fix}
+\eb_ctex_define:nn { tocset }
+  {
+    lolskip .skip_set:N     = \l__eb_toc_lolskip_skip,
+    lolskip .initial:n      = 0.8pc,
+    belowoffset .dim_set:N  = \l__eb_toc_offset_dim,
+    belowoffset .initial:n  =
+      { \bool_if:NTF \l__eb_class_book_bool { -1pc } { -0.35pc } },
+    line-align .bool_set:N  = \l__eb_toc_line_align_bool,
+    line-align .default:n   = true,
+    line-align .initial:n   = true,
+
+    tocline-fig .cs_set:Np  = \eb@labelname@lof #1,
+    tocline-fig .initial:n  =
+      {
+        \figurename\space #1
+        \notbool{eb@titletoc@hang@fix}
+          {\hspace{\eb@toc@figure@numsep}}{}
+      },
+    tocline-tab .cs_set:Np  = \eb@labelname@lot #1,
+    tocline-tab .initial:n  =
+      {
+        \tablename\space #1
+        \notbool{eb@titletoc@hang@fix}
+          {\hspace{\eb@toc@table@numsep}}{}
+      },
+    tocline-lst .tl_set:N   = \eb@labelname@lol,
+    tocline-lst .initial:n  =
+      {
+        \lstlistingname\space\thelstlisting
+        \notbool{eb@titletoc@hang@fix}
+          {\hspace{\eb@toc@lstlisting@numsep}}{}
+      },
+
+    hang .choice:,
+    hang/true .code:n     =
+      {
+        \booltrue{eb@titletoc@hang@fix}
+        \ctex_set:n
+          {
+            chapter/tocline     = \CTEXnumberline{##1}##2,
+            section/tocline     = \CTEXnumberline{##1}##2,
+            subsection/tocline  = \CTEXnumberline{##1}##2
+          }
+      },
+    hang/false .code:n    =
+      {
+        \ctex_set:n
+          {
+            chapter/tocline     = \EBNumberLine{##1}##2,
+            section/tocline     = \EBNumberLine{##1}##2,
+            subsection/tocline  = \EBNumberLine{##1}##2
+          }
+      },
+    hang .default:n       = true,
+    hang .initial:n       = false,
+
+    numsep-all .meta:n    =
+      {
+        part/numsep       = #1,
+        chapter/numsep    = #1,
+        section/numsep    = #1,
+        subsection/numsep = #1,
+        list/numsep       = #1
+      },
+    numsep-all .initial:n = \ccwd,
+    indent-all .meta:n    =
+      {
+        part/indent       = #1,
+        chapter/indent    = #1,
+        section/indent    = #1,
+        subsection/indent = #1,
+        list/indent       = #1
+      },
+    rule-all .meta:n      =
+      {
+        part/rule         = #1,
+        chapter/rule      = #1,
+        section/rule      = #1,
+        subsection/rule   = #1,
+        list/rule         = #1
+      }
+  }
+
+\NewDocumentCommand{\tocrule}{sO{0.7pc}D(){1.2}mO{}}
+  {
+    \normalsize\normalfont
+    \titlerule*[#2]{\scalebox{#3}{#4}}#5
+      {
+        \IfBooleanTF{#1}
+          {\thecontentspage}
+          {
+            \bool_if:NTF \l__eb_toc_line_align_bool
+              { \contentspage }
+              { \thecontentspage }
+          }
+      }
+  }
+\ctex_set:nn { tocset }
+  {
+    part/format       = \addvspace{1pc}\sffamily\large,
+    part/indent       = 0\ccwd,
+    part/rule         = \tocrule{}[\bfseries],
+
+    chapter/format    = \addvspace{1pc}\sffamily\large,
+    chapter/indent    = 0\ccwd,
+    chapter/rule      = \tocrule{$\cdot$}[\bfseries],
+
+    section/format    = \addvspace{0.35pc},
+    section/indent    =
+      { \bool_if:NTF \l__eb_class_book_bool { 1.5\ccwd } { 0\ccwd } },
+    section/rule      = \tocrule{$\cdot$},
+
+    subsection/format = \addvspace{0.35pc},
+    subsection/indent =
+      { \bool_if:NTF \l__eb_class_book_bool { 3.8\ccwd } { 1.4\ccwd } },
+    subsection/rule   = \tocrule{$\cdot$},
+
+    list/format       = \addvspace{0.2pc},
+    list/indent       = 0\ccwd,
+    list/rule         = \tocrule{$\cdot$},
+    list/belowoffset  =
+      { \bool_if:NTF \l__eb_class_book_bool { 0pc } { 0.15pc } }
+  }
+
+\prop_new:N \l__eb_label_name_prop
+\prop_set_from_keyval:Nn \l__eb_label_name_prop
+  {
+    figure  = \eb@labelname@lof,
+    table   = \eb@labelname@lot
+  }
+\cs_gset:Npn \caption@@@addcontentsline #1#2#3#4
+  {
+    \addcontentsline{#1}{#2}
+      {
+        \ifbool{eb@titletoc@hang@fix}{\protect\numberline}{}
+          {\prop_item:Nn \l__eb_label_name_prop {#2}{#3}}#4
+      }
+  }
+\ctex_patch_cmd:Nnn \lst@MakeCaption
+  {
+    \addcontentsline{lol}{lstlisting}
+      {\protect\numberline{\thelstlisting}\lst@@caption}
+  }
+  {
+    \addcontentsline{lol}{lstlisting}
+      {
+        \ifbool{eb@titletoc@hang@fix}{\protect\numberline}{}
+          {\eb@labelname@lol}\lst@@caption
+      }
+  }
+
+\newcounter{bichapter}
+\newcounter{bisection}[bichapter]
+\newcounter{bisubsection}[bisection]
+\cs_set_protected:Npn \eb_current_label:n #1
+  {
+    \tl_set:Nx \@currentlabel
+      {
+        \use:c { p@#1 }
+        \tl_use:c { the#1 }
+      }
+  }
+\NewDocumentCommand{\UseCounter}{soD(){arabic}mmO{.}d()}
+  {
+    \IfBooleanF{#1}{\stepcounter{#4}}
+    \IfValueT{#7}{\setcounter{#4}{#7}}
+    \tl_set:cn { theeb@#4 }
+      {
+        \IfValueT{#2}{\use:c { the#2 }#6}
+        \use:c {#3}{#4}\space #5
+      }
+    \tl_use:c { theeb@#4 }
+    \tl_remove_once:cn { theeb@#4 } {#5}
+    \eb_current_label:n { eb@#4 }
+  }
+\cs_new:Npn \eb_arabic:n #1 { \int_to_arabic:v { c@#1 } }
+\cs_new:Npn \eb_section_counter_prefix:n #1
+  {
+    \int_compare:nNnT { \c@chapter } > { 0 } { \use:c { the#1chapter }. }
+    \eb_arabic:n { #1section }
+  }
+\cs_set:Npn \thebichapter { \eb_arabic:n { bichapter } }
+\cs_set:Npn \thebisection { \eb_section_counter_prefix:n { bi } }
+\cs_set:Npn \thebisubsection { \thebisection.\eb_arabic:n { bisubsection } }
+\cs_set:Npn \thesection { \eb_section_counter_prefix:n { } }
+\eb_clist_map_inline:nn
+  { figure,table,lstlisting,equation }
+  {
+    \cs_set:cpn { the#1 }
+      {
+        \int_compare:nNnT { \c@chapter } > { 0 }
+          {
+            \thechapter
+            \tl_use:c { l__eb_#1_connector_tl }
+          }
+        \eb_arabic:n {#1}
+      }
+  }
+\contentsuse{}{tec}
+\tl_new:N \eb@before@addbitoc@hook
+\NewDocumentCommand{\BeforeAddBitoc}{sm}
+  {
+    \IfBooleanTF{#1}
+      {\tl_gset:Nn \eb@before@addbitoc@hook {#2}}
+      {\tl_gput_right:Nn \eb@before@addbitoc@hook {#2}}
+  }
+\cs_set_protected:Npn \CTEX@addbitocline #1#2
+  {
+    \group_begin:
+    \def\CTEX@prechapter{\CTEX@prebichapter}
+    \def\CTEX@thechapter{\CTEX@bichapter@number}
+    \def\CTEX@postchapter{\CTEX@postbichapter}
+    \eb@before@addbitoc@hook
+    \addcontentsline{tec}{#1}{\use:c { CTEX@#1@tocline }{#1}{#2}}
+    \group_end:
+  }
+\eb_clist_map_inline:nn
+  { chapter,section,subsection }
+  {
+    \exp_args:Nc \NewDocumentCommand { bi#1 }{sO{##3}mm}
+      {
+        \IfBooleanTF{##1}
+          {
+            \use:c {#1}*{\phantomsection ##3}
+            \CTEX@addtocline{#1}{##2}
+            \tl_if_empty:oF {##4} { \CTEX@addbitocline{#1}{##4} }
+            \tl_set:Nn \l__eb__bitoc_mark_title_level_tl {#1}
+            \str_case:nn {#1}
+              {
+                { chapter } { \eb@level@markdouble{chapter}{##2} }
+                { section } { \eb@level@section@mark{##2} }
+                { subsection } { \eb@level@subsection@mark{##2} }
+              }
+          }{
+            \stepcounter{bi#1}
+            \use:c {#1}[##2]{##3}
+            \tl_if_empty:oF {##4} { \CTEX@addbitocline{#1}{##4} }
+          }
+      }
+  }
+\cs_if_exist:NT \chapter
+  {
+    \eb_appto_cmd:Nn \@chapter
+      {
+        \skip_if_eq:nnF { \l__eb_toc_lolskip_skip } { \c_zero_skip }
+          {
+            \addtocontents{lol}
+              {\protect\addvspace{\skip_use:N \l__eb_toc_lolskip_skip}}
+          }
+      }
+  }
+
+\tl_set:Nx \l__eb_toc_type_tl
+  { \bool_if:NTF \l__eb_class_book_bool { chapter } { section } }
+\tl_new:N \eb@bitoc@title
+\keys_define:nn { eb/listoc }
+  {
+    section .code:n     = \tl_set:Nn \l__eb_toc_type_tl { section },
+    chapter .code:n     = { },
+    article .meta:n     = section,
+    book .meta:n        = chapter,
+    multoc .bool_set:N  = \l__eb_multoc_bool,
+    multoc .default:n   = true,
+    multoc .initial:n   = false,
+    title .code:n       = \eb_assign_toc_title:n {#1},
+    columns .int_set:N  = \l__eb_toc_columns_int,
+    columns .initial:n  = 2
+  }
+\bool_if:NTF \l__eb_class_book_bool
+  { \keys_define:nn { } { eb/listoc .inherit:n = ctex/chapter } }
+  { \keys_define:nn { } { eb/listoc .inherit:n = ctex/section } }
+\NewDocumentCommand{\eb_assign_toc_title:n}
+  {>{\SplitArgument{1}{,}}m}
+  {\eb_assign_toc_title_judge:nn #1}
+\cs_new_protected:Npn \eb_assign_toc_title_judge:nn #1#2
+  {
+    \tl_set:Nn \eb@toc@title {#1}
+    \tl_if_novalue:nTF {#2}
+      { \tl_clear:N \eb@bitoc@title }
+      { \tl_set:Nn \eb@bitoc@title {#2} }
+  }
+
+\cs_new_protected:Npn \eb_title_mark_intoc:n #1
+  {
+    \tl_if_eq:NnTF \l__eb_toc_type_tl { chapter }
+      {
+        \bichapter*{#1}{\eb@bitoc@title}
+        \eb@level@markdouble{chapter}{#1}
+      }
+      {
+        \bisection*{#1}{\eb@bitoc@title}
+        \eb@level@section@mark{#1}
+      }
+  }
+\cs_new_protected:Npn \eb_title_mark_notoc:n #1
+  {
+    \tl_if_eq:NnTF \l__eb_toc_type_tl { chapter }
+      {
+        \chapter*{\phantomsection #1}
+        \eb@level@markdouble{chapter}{#1}
+      }
+      {
+        \section*{\phantomsection #1}
+        \eb@level@section@mark{#1}
+      }
+  }
+\cs_new_protected:Npn \eb_title_number_intoc_bool:nn #1#2
+  {
+    \IfBooleanTF{#1}
+      {
+        \tl_if_eq:NnTF \l__eb_toc_type_tl { chapter }
+          { \bichapter{\eb@toc@title}{\eb@bitoc@title} }
+          { \bisection{\eb@toc@title}{\eb@bitoc@title} }
+      }{
+        \IfBooleanTF{#2}
+          {\eb_title_mark_notoc:n { \eb@toc@title }}
+          {\eb_title_mark_intoc:n { \eb@toc@title }}
+      }
+  }
+\cs_new_protected:Npn \eb_biber_title_level_bool:n #1
+  {
+    \bool_if:NTF \l__eb_class_book_bool
+      { \bichapter*{#1}{\l__eb_bib_bitoc_title} }
+      { \bisection*{#1}{\l__eb_bib_bitoc_title} }
+    \eb@level@section@mark{#1}
+  }
+\cs_new_protected:Npn \eb_toc_start_multicol_bool:n #1
+  {
+    \bool_if:NTF \l__eb_multoc_bool
+      {
+        \begin{multicols}{\int_use:N \l__eb_toc_columns_int}
+          \@starttoc{#1}
+        \end{multicols}
+      }
+      { \@starttoc{#1} }
+  }
+\cs_new_protected:Npn \eb_toc_list_parse:nnnnn #1#2#3#4#5
+  {
+    \group_begin:
+    \tl_set_eq:Nc \eb@toc@title { list#4name }
+    \IfValueT{#3}{\keys_set:nn { eb/listoc } {#3}}
+    \eb_title_number_intoc_bool:nn {#2} {#1}
+    \dim_add:Nv
+    \l__eb_toc_offset_dim { l__eb_toc_#4_offset_dim }
+    \vspace*{\dim_use:N \l__eb_toc_offset_dim}
+    \eb_toc_start_multicol_bool:n {#5}
+    \group_end:
+  }
+\clist_map_inline:nn
+  {
+    { figure,lof },
+    { table,lot },
+    { lstlisting,lol }
+  }
+  {
+    \exp_args:Nc \DeclareDocumentCommand
+      { listof\clist_item:nn {#1} { 1 }s }{st+o}
+      {
+        \eb_toc_list_parse:nnnnn {##1} {##2} {##3}
+          { \clist_item:nn {#1} { 1 } }
+          { \clist_item:nn {#1} { 2 } }
+      }
+  }
+\cs_set_eq:NN \listoflistings \listoflstlistings
+\RenewDocumentCommand{\tableofcontents}{t+oD(){}}
+  {
+    \group_begin:
+    \tl_set_eq:NN \eb@toc@title \contentsname
+    \tl_set:Nn \eb@bitoc@title { Contents }
+    \IfValueT{#2}{\keys_set:nn { eb/listoc } {#2}}
+    \eb_title_mark_notoc:n { \eb@toc@title }
+    \vspace*{\dim_use:N \l__eb_toc_offset_dim}
+    \eb_toc_start_multicol_bool:n { toc }#3
+    \IfBooleanT{#1}
+      {
+        \eb_title_mark_notoc:n { \eb@bitoc@title }
+        \vspace*{\dim_use:N \l__eb_toc_offset_dim}
+        \eb_toc_start_multicol_bool:n { tec }
+      }
+    \group_end:
+  }
+
+\ctex_at_end_package:nn { imakeidx }
+  {
+    \makeindex[
+      options   = -M~texindy~-C~utf8,
+      program   = truexindy,
+      columns   = 2,
+      columnsep = 2\ccwd
+      ]
+    \RenewDocumentCommand{\printindex}{st+oD(){\imki@jobname}}
+      {
+        \group_begin:
+        \tl_set_eq:NN \eb@toc@title \indexname
+        \cs_set_eq:NN \imki@indexlevel \use_none:n
+        \setkeys{imkiindex}{noclearpage}
+        \IfValueT{#3}{\keys_set:nn { eb/listoc } {#3}}
+        \tl_set:Nn \imki@indexheaders
+          {
+            \eb_title_number_intoc_bool:nn {#2} {#1}
+            \cs_set_eq:NN \thispagestyle \use_none:n
+            \cs_undefine:N \imki@firstpagestyle
+          }
+        \imki@putindex{#4}
+        \group_end:
+      }
+  }
+
+\eb_ctex_define:nn { chapter }
+  {
+    biname .code:n      =
+      { \ctex_assign_heading_name:nn { bichapter } {#1} },
+    biname .initial:n   = Chapter\space,
+    binmuber .tl_set:N  = \CTEX@bichapter@number,
+    binmuber .initial:n = \arabic{chapter}
+  }
+\cs_new_protected:Npn \eb_counter_zero:n #1
+  { \eb_clist_map_inline:nn {#1} { \setcounter{##1}{0} } }
+\RenewDocumentCommand{\appendix}
+  {O{Appendix\space}D(){\Alph{chapter}}}
+  {
+    \ctex_assign_heading_name:nn { biappendix } {#1}
+    \int_compare:nNnTF { \c@chapter } > { 0 }
+      {
+        \ExplSyntaxOn\char_set_catcode_letter:N \@
+        \eb_patch_cmd:Nnn \CTEX@addbitocline
+          {
+            \def\CTEX@prechapter{\CTEX@prebichapter}
+            \def\CTEX@thechapter{\CTEX@bichapter@number}
+            \def\CTEX@postchapter{\CTEX@postbichapter}
+          }
+          {
+            \def\CTEX@prechapter{\CTEX@prebiappendix}
+            \def\CTEX@thechapter{#2}
+            \def\CTEX@postchapter{\CTEX@postbiappendix}
+          }
+        \ExplSyntaxOff\char_set_catcode_other:N \@
+        \gdef\thechapter{\@Alph\c@chapter}
+        \gdef\thebichapter{\@Alph\c@bichapter}
+        \gdef\CTEX@prechapter{\CTEX@preappendix}
+        \gdef\CTEX@thechapter{\CTEX@appendix@number}
+        \gdef\CTEX@postchapter{\CTEX@postappendix}
+        \gdef\CTEX@chapter@numbering{\CTEX@appendix@numbering}
+        \eb_counter_zero:n { chapter,section,bichapter,bisection }
+      }
+      {
+        \gdef\thesection{\@Alph\c@section}
+        \gdef\thebisection{\@Alph\c@bisection}
+        \gdef\CTEX@presection{\CTEX@preappendix}
+        \gdef\CTEX@thesection{\CTEX@appendix@number}
+        \gdef\CTEX@postsection{\CTEX@postappendix}
+        \gdef\CTEX@section@numbering{\CTEX@appendix@numbering}
+        \ctex_set:nn { appendix } { number = \@Alph\c@section,name = { } }
+        \eb_counter_zero:n { section,subsection,bisection,bisubsection }
+      }
+  }
+
+\tl_new:N \l__eb_subfont_table_tl
+\tl_new:N \l__eb_subfont_figure_tl
+\tl_new:N \l__eb_subfont_listing_tl
+\tl_new:N \l__eb_subfont_footnote_tl
+
+\eb_ctex_define:nn { subfont }
+  {
+    table-cap .tl_set:N     = \l__eb_subfont_table_tl,
+    table-cap .initial:n    = \sffamily\small,
+    figure-cap .tl_set:N    = \l__eb_subfont_figure_tl,
+    figure-cap .initial:n   = \sffamily\small,
+    listing-cap .tl_set:N   = \l__eb_subfont_listing_tl,
+    listing-cap .initial:n  = \sffamily\small,
+    footnote .tl_set:N      = \l__eb_subfont_footnote_tl,
+    footnote .initial:n     = \rmfamily,
+    marginpar .tl_set:N     = \marginfont,
+    marginpar .initial:n    = \rmfamily\footnotesize,
+
+    math .choices:nn        =
+      {
+        noto,notosans,times,scholax,stix,
+        charter,ebgaramond,libertine,none
+      }
+      {
+        \tl_gset_eq:NN
+        \l__eb_subfont_math_choice_tl \l_keys_choice_tl
+      },
+    math .value_required:n  = true,
+    math .initial:n         = noto
+  }
+
+\cs_new_protected:Npn \eb_put_newtxmath:n #1
+  { \PassOptionsToPackage{#1}{newtxmath} }
+\eb_at_end_preamble:n
+  {
+    \str_case:VnT \l__eb_subfont_math_choice_tl
+      {
+        { noto } { \eb_put_newtxmath:n { noto } }
+        { notosans } { \eb_put_newtxmath:n { notosans } }
+        { ebgaramond } { \eb_put_newtxmath:n { ebgaramond } }
+        { times } { \eb_put_newtxmath:n { noOT1 } }
+        { libertine } { \eb_put_newtxmath:n { libertine,noOT1 } }
+        { stix } { \eb_put_newtxmath:n { stix2,noOT1 } }
+        { scholax } { \eb_put_newtxmath:n { nc,noOT1 } }
+        { charter } { \eb_put_newtxmath:n { charter,noOT1 } }
+      }
+      { \LoadPackage{newtxmath+bm} }
+  }
+
+\fp_new:N \l__eb_spread_line_fp
+\fp_new:N \l__eb_spread_table_fp
+\fp_new:N \l__eb_spread_math_fp
+\fp_new:N \l__eb_spread_caption_fp
+\fp_new:N \l__eb_spread_footnote_fp
+
+\eb_ctex_define:nn { spread }
+  {
+    line .fp_set:N      = \l__eb_spread_line_fp,
+    line .initial:n     = 1.3,
+    table .fp_set:N     = \l__eb_spread_table_fp,
+    table .initial:n    = 1.05,
+    math .fp_set:N      = \l__eb_spread_math_fp,
+    math .initial:n     = 1.05,
+    caption .fp_set:N   = \l__eb_spread_caption_fp,
+    caption .initial:n  = 1,
+    footnote .fp_set:N  = \l__eb_spread_footnote_fp,
+    footnote .initial:n = 1,
+    spread-all .meta:n  =
+      {
+        line      = #1,
+        table     = #1,
+        math      = #1,
+        caption   = #1,
+        footnote  = #1
+      }
+  }
+
+\DeclareCaptionLabelSeparator{ccwd}{\hspace{\ccwd}}
+\DeclareCaptionLabelFormat{parens}{\bothIfFirst{#1}{~}(#2)}
+\DeclareCaptionFont{eb@table@font}{\l__eb_subfont_table_tl}
+\DeclareCaptionFont{eb@figure@font}{\l__eb_subfont_figure_tl}
+\DeclareCaptionFont{eb@listing@font}{\l__eb_subfont_listing_tl}
+\captionsetup
+  {
+    format          = hang,
+    font = {stretch = \fp_use:N \l__eb_spread_caption_fp},
+    labelfont       = {color = ctex@frame},
+    labelsep        = ccwd,
+    singlelinecheck = true,
+    belowskip       = 0pt,
+    aboveskip       = 10pt
+  }
+\captionsetup[table]{font += eb@table@font}
+\captionsetup[figure]{font += eb@figure@font}
+\captionsetup[lstlisting]{font += eb@listing@font}
+\captionsetup[subfigure]
+  {
+    labelformat = parens,
+    font+       = eb@figure@font,
+    belowskip   = 2pt,
+    aboveskip   = 6pt
+  }
+\ctex_at_end_package:nn { bicaption }
+  {
+    \captionsetup[figure][bi-second]{name = Figure}
+    \captionsetup[table][bi-second]{name = Table}
+  }
+\IfPackageAtLeastTF{tabularray}{2021/07/01}
+  {
+    \SetTblrInner
+      {
+        rows    = {abovesep = 4pt,belowsep = 2pt},
+        stretch = \fp_use:N \l__eb_spread_table_fp
+      }
+    \NewTableCommand{\toprule}[1][1pt]{\hline[#1]}
+    \NewTableCommand{\midrule}[1][0.5pt]{\hline[#1]}
+    \NewTableCommand{\bottomrule}[1][1pt]{\hline[#1]}
+  }{}
+\eb_at_begin_environment:nn { tabular,tabularx }
+  {
+    \exp_args:Nx \linespread { \fp_use:N \l__eb_spread_table_fp }
+    \selectfont\ignorespaces
+  }
+\ctex_after_end_preamble:n
+  {
+    \exp_args:Nx \linespread { \fp_use:N \l__eb_spread_line_fp }
+    \selectfont\ignorespaces
+  }
+
+\cs_new_protected:Npn \eb_float_proportion_set:nn #1#2
+  { \tl_gset:cn { #1fraction } {#2} }
+\bool_if:NF \l__eb_float_page_bool
+  {
+    \clist_map_inline:nn
+      {
+        { text } { 0.1 },
+        { top } { 0.9 },
+        { bottom } { 0.9 },
+        { floatpage } {0.9 },
+        { dbltop } { 0.9 },
+        { dblfloatpage } { 0.9 }
+      }
+      { \eb_float_proportion_set:nn #1 }
+  }
+\skip_set:Nn \parskip { 0pt plus 2pt minus 1pt }
+\skip_set:Nn \intextsep { 14pt plus 2pt minus 2pt }
+\skip_set:Nn \textfloatsep { 16pt plus 2pt minus 4pt }
+\skip_set:Nn \multicolsep { 12pt plus 4pt minus 3pt }
+\skip_set:Nn \dbltextfloatsep { 16pt plus 2pt minus 4pt }
+\int_gset:Nn \vbadness { 10000 }
+\int_gset:Nn \hbadness { 10000 }
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{4}
+\setcounter{totalnumber}{8}
+\allowdisplaybreaks[4]
+\tl_gset:Nn \ULthickness { \l__eb_rule_width_dim }
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.eps,.tif}
+
+\cs_new_protected:Npn \eb_enumitem_label_set:nn #1#2
+  { \SetEnumitemValue{label}{#1}{\color{ctex@emph}#2} }
+\clist_map_inline:nn
+  {
+    { bullet } { \textbullet },
+    { endash } { \normalfont\bfseries\textendash },
+    { asterisk } { \textasteriskcentered },
+    { arabic } { \arabic*. },
+    { alph } { (\alph*) },
+    { roman } { \roman*. },
+    { outline } { \upshape\ding{111} }
+  }
+  { \eb_enumitem_label_set:nn #1 }
+\SetEnumitemValue{font}{sf}{\color{ctex@emph}\normalfont\sffamily}
+\SetEnumitemValue{ref}{enumii}{\arabic{enumi}.\alph*}
+\SetEnumitemValue{ref}{enumiii}{\arabic{enumi}.\alph{enumii}.\roman*}
+\setlist
+  {
+    labelsep = 0.75\ccwd,listparindent = 2\ccwd,leftmargin = *,
+    itemsep = 0.75ex plus .1ex,topsep = 0.75ex plus .1ex,
+    partopsep = 0ex,parsep = 0ex
+  }
+\newlist{eb@outline@list}{itemize}{1}
+\setlist[eb@outline@list]{label = outline,itemsep = 0.5ex plus .1ex}
+\setlist[itemize,1]{label = bullet}
+\setlist[itemize,2]{label = endash}
+\setlist[itemize,3]{label = asterisk}
+\setlist[enumerate,1]{label = arabic,ref = \arabic*}
+\setlist[enumerate,2]{label = alph,ref = enumii}
+\setlist[enumerate,3]{label = roman,ref = enumiii,labelwidth = *}
+\setlist[description]{font = sf,labelwidth = *,leftmargin = 2\ccwd}
+
+\cs_new_protected:Npn \eb_thmname_set:nnn #1#2#3
+  {
+    \tl_if_eq:NnTF \l__ctex_scheme_tl { chinese }
+      { \tl_const:cn { c__eb_name_#1_tl } {#3} }
+      { \tl_const:cn { c__eb_name_#1_tl } {#2} }
+  }
+\NewDocumentCommand{\DeclareTheorem}
+  {mO{\text_titlecase_first:n {#1}}mD(){tc-theorem}O{}}
+  {
+    \ctex_at_end_preamble:n
+      {
+        \eb_thmname_set:nnn {#1} {#2} {#3}
+        \exp_args:No \declaretheorem@i
+          {
+            name  = \tl_use:c { c__eb_name_#1_tl },
+            style = easy-theorem,#5
+          }{#1}[]
+        \bool_if:NT \l__eb_thmbox_bool
+          {
+            \@ifpackageloaded{tcolorbox}
+              {\tcolorboxenvironment{#1}{#4}}{}
+          }
+        \labelformat{#1}{\tl_use:c { c__eb_name_#1_tl }~##1}
+      }
+  }
+\cs_set_eq:NN \EBNewTheorem \DeclareTheorem
+\cs_set_eq:NN \eb@declare@theorem@save \declaretheorem
+\RenewDocumentCommand{\declaretheorem}{O{}m}
+  {\AfterPreamble{\eb@declare@theorem@save[#1]{#2}}}
+\cs_set_eq:NN \newtheorem \declaretheorem
+\prop_new:N \l__eb_thmtools_entry_prop
+\clist_const:Nn \c__eb_thmtools_entry_clist
+  {
+    spaceabove    = \l__eb_thm_spaceabove_tl,
+    spacebelow    = \l__eb_thm_spacebelow_tl,
+    headindent    = \l__eb_thm_headindent_tl,
+    headfont      = \l__eb_thm_headfont_tl,
+    notefont      = \l__eb_thm_notefont_tl,
+    notebraces    = \l__eb_thm_notebraces_tl,
+    bodyfont      = \l__eb_thm_bodyfont_tl,
+    headpunct     = \l__eb_thm_headpunct_tl,
+    postheadspace = \l__eb_thm_postheadspace_tl,
+    within        = \l__eb_thm_within_tl,
+    headformat    = \l__eb_thm_headformat_tl
+  }
+\prop_set_from_keyval:NV
+\l__eb_thmtools_entry_prop \c__eb_thmtools_entry_clist
+\prop_map_inline:Nn \l__eb_thmtools_entry_prop
+  { \eb_ctex_define:nn { thmset } { #1 .tl_set:N = #2 } }
+\NewDocumentCommand{\eb_assign_tag_brackets:n}
+  {>{\SplitArgument{1}{,}}m}
+  {\eb_assign_tag_brackets_pos:nn #1}
+\cs_new_protected:Npn \eb_assign_tag_brackets_pos:nn #1#2
+  {
+    \tl_set:Nn \eb@tag@brackets@left {#1}
+    \tl_set:Nn \eb@tag@brackets@right {#2}
+  }
+\cs_gset:Npn \tagform@ #1
+  {
+    \maketag@@@
+      {
+        \color{ctex@emph}
+        \eb@tag@brackets@left
+        \ignorespaces #1\unskip\@@italiccorr
+        \eb@tag@brackets@right
+      }
+  }
+\eb_ctex_define:nn { thmset }
+  {
+    thmbox .bool_set:N  = \l__eb_thmbox_bool,
+    thmbox .default:n   = true,
+    thmbox .initial:n   = false,
+    brackets .code:n    = \eb_assign_tag_brackets:n {#1},
+    brackets .initial:n = { (,) }
+  }
+\ctex_set:nn { thmset }
+  {
+    spaceabove    = 0.75ex plus .1ex,
+    spacebelow    = 0.75ex plus .1ex,
+    headindent    = 0\ccwd,
+    headfont      = \color{ctex@emph}\sffamily,
+    postheadspace = \ccwd,
+    within        = \bool_if:NT \l__eb_class_book_bool { chapter },
+    headformat    = \NAME\space\NUMBER\NOTE
+  }
+\eb_at_end_preamble:n
+  {
+    \exp_last_unbraced:NNV
+    \declaretheoremstyle[\c__eb_thmtools_entry_clist]{easy-theorem}
+    \eb_thmname_set:nnn { exercise } { Exercise } { 练习 }
+    \cs_undefine:N \proof
+    \clist_map_inline:nn
+      {
+        { lemma } { 引理 },
+        { example } { 例 },
+        { theorem } { 定理 },
+        { corollary } { 推论 },
+        { definition } { 定义 },
+        { proposition } { 性质 },
+        { remark } { 注 } [ numbered = no ],
+        { { proof } { 证明 } [ numbered = no,qed = \qedsymbol ] }
+      }
+      { \DeclareTheorem #1 }
+  }
+
+\setchemformula
+  {
+    math-scripts      = false,
+    charge-hshift     = 0.25\ccwd,
+    subscript-vshift  = -0.2ex
+  }
+\IfPackageAtLeastTF{siunitx}{2021/06/22}
+  {
+    \sisetup
+      {
+        mode = match,
+        table-parse-only,
+        text-family-to-math,
+        text-series-to-math,
+        reset-text-family   = false,
+        reset-text-series   = false,
+        reset-text-shape    = false,
+        range-phrase  = \ensuremath{\sim},
+        range-units   = single,
+        group-digits  = none
+      }
+  }{}
+\eb_at_begin_environment:nn
+  {
+    array,matrix,pmatrix,bmatrix,Bmatrix,vmatrix,Vmatrix,
+    matrix*,pmatrix*,bmatrix*,Bmatrix*,vmatrix*,Vmatrix*,
+    cases,cases*,dcases,dcases*,rcases,rcases*,drcases,drcases*,
+    aligned,alignedat,gathered,multlined,lgathered,rgathered
+  }
+  {
+    \linespread{\fp_use:N \l__eb_spread_math_fp}
+    \selectfont\ignorespaces
+  }
+\eb_patch_cmd:nnn { \start@gather,\start@align,\start@multline }
+  { \collect@body }
+  {
+    \linespread{\fp_use:N \l__eb_spread_math_fp}
+    \selectfont\collect@body
+  }
+\eb_patch_cmd:Nnn \gather@split
+  { \spread@equation }
+  {
+    \linespread{\fp_use:N \l__eb_spread_math_fp}
+    \selectfont\spread@equation
+  }
+\ctex_after_end_preamble:n
+  {
+    \skip_set:Nn \abovedisplayskip { 5pt plus 1pt minus 1pt }
+    \skip_set:Nn \belowdisplayskip { 5pt plus 1pt minus 1pt }
+    \skip_set:Nn \abovedisplayshortskip { 0pt }
+    \skip_set:Nn \belowdisplayshortskip { 5pt plus 1pt minus 1pt }
+  }
+\ctex_at_end_package:nn { unicode-math }
+  { \msg_redirect_module:nnn { unicode-math } { warning } { info } }
+
+\keys_define:nn { eb/exercise }
+  {
+    color .tl_set:N   = \eb@tc@background@color,
+    color .initial:n  = LightSkyBlue,
+    number .tl_set:N  = \eb@tc@list@number,
+    number .initial:n = { 1. },
+    title .tl_set:N   = \eb@tc@exercise@title,
+    title .initial:n  = \c__eb_name_exercise_tl,
+    numsep .dim_set:N = \eb@toc@exercise@numsep,
+    numsep .initial:n = 0.5\ccwd,
+    label .tl_set:N   = \eb@tc@exercise@label
+  }
+\cs_new_protected:Npn \setexercise #1
+  { \keys_set:nn { eb/exercise } {#1} }
+\ctex_at_end_package:nn { tcolorbox }
+  {
+    \eb_package_date_check:nn { tcolorbox } { 2020/10/09 }
+    \file_if_exist_input:n { eb-tcolorbox.cfg }
+  }
+
+\bool_set_true:N \l__eb_backend_bibtex_bool
+\tl_new:N \l__eb_bib_style_tl
+\tl_new:N \l__eb_bib_otherstyle_tl
+\tl_new:N \l__eb_bib_citestyle_tl
+\clist_new:N \l__eb_bib_datafile_clist
+
+\eb_ctex_define:nn { bibset }
+  {
+    backend .choice:,
+    backend .value_required:n = true,
+    backend/bibtex .code:n    = { },
+    backend/biblatex .code:n  =
+      { \bool_set_false:N \l__eb_backend_bibtex_bool },
+
+    bib-style .choice:,
+    bib-style .value_required:n   = true,
+    bib-style/numerical .code:n   =
+      {
+        \tl_set:Nn \l__eb_bib_style_tl {#1}
+        \tl_clear:N \l__eb_bib_otherstyle_tl
+      },
+    bib-style/authoryear .code:n  =
+      {
+        \tl_set:Nn \l__eb_bib_style_tl {#1}
+        \tl_clear:N \l__eb_bib_otherstyle_tl
+      },
+    bib-style/unknown .code:n     =
+      { \tl_set_eq:NN \l__eb_bib_otherstyle_tl \l_keys_value_tl },
+    bib-style .initial:n          = numerical,
+
+    cite-style .code:n      =
+      { \tl_set:Nn \l__eb_bib_citestyle_tl {#1} },
+    datafile .clist_set:N   = \l__eb_bib_datafile_clist,
+    bitoc-title .tl_set:N   = \l__eb_bib_bitoc_title,
+    bitoc-title .initial:n  = Reference
+  }
+
+\cs_new_protected:Npn \BibtexPostset
+  {
+    \tl_if_empty:NTF \l__eb_bib_otherstyle_tl
+      {
+        \tl_if_eq:NnT \l__eb_bib_style_tl { numerical }
+          {
+            \bibliographystyle{gbt7714-numerical}
+            \setcitestyle{comma,square,super}
+          }
+        \tl_if_eq:NnT \l__eb_bib_style_tl { authoryear }
+          { \bibliographystyle{gbt7714-author-year} }
+        \cs_set_eq:NN \cite \citep
+      }
+      { \exp_args:NV \bibliographystyle \l__eb_bib_otherstyle_tl }
+    \tl_if_empty:NF \l__eb_bib_citestyle_tl
+      { \exp_args:NV \setcitestyle \l__eb_bib_citestyle_tl }
+    \skip_zero:N \bibsep
+    \AtEndEnvironment{thebibliography}
+      {\bool_if:NT \l__eb_multoc_bool { \end{multicols} }}
+    \NewDocumentCommand{\printbibliography}{st+o}
+      {
+        \group_begin:
+        \tl_set_eq:NN \eb@toc@title \bibname
+        \IfValueT{##3}{ \keys_set:nn { eb/listoc } {##3} }
+        \tl_set:Nn \bibsection
+          {
+            \eb_title_number_intoc_bool:nn {##2} {##1}
+            \bool_if:NT \l__eb_multoc_bool
+              { \begin{multicols}{\int_use:N \l__eb_toc_columns_int} }
+          }
+        \exp_args:NV \bibliography \l__eb_bib_datafile_clist
+        \group_end:
+      }
+  }
+\cs_new_protected:Npn \eb_put_biblatex:n #1
+  { \PassOptionsToPackage{#1}{biblatex} }
+\cs_new_protected:Npn \BiblatexPreset
+  {
+    \tl_if_empty:NTF \l__eb_bib_otherstyle_tl
+      {
+        \tl_if_eq:NnT \l__eb_bib_style_tl { numerical }
+          { \eb_put_biblatex:n { style = gb7714-2015 } }
+        \tl_if_eq:NnT \l__eb_bib_style_tl { authoryear }
+          { \eb_put_biblatex:n { style = gb7714-2015ay } }
+      }
+      { \eb_put_biblatex:n { style = \l__eb_bib_otherstyle_tl } }
+    \tl_if_empty:NF \l__eb_bib_citestyle_tl
+      { \eb_put_biblatex:n { citestyle = \l__eb_bib_citestyle_tl } }
+    \eb_put_biblatex:n { backend = biber }
+  }
+\cs_new_protected:Npn \BiblatexPostset
+  {
+    \clist_map_function:NN \l__eb_bib_datafile_clist \addbibresource
+    \tl_gset:Nn \blx@default@theheading { bibintoc }
+    \defbibheading{bibintoc}[\bibname]
+      {\eb_biber_title_level_bool:n {##1}}
+    \skip_zero:N \bibitemsep
+  }
+\eb_at_end_preamble:n
+  {
+    \clist_if_empty:NF \l__eb_bib_datafile_clist
+      {
+        \bool_if:NTF \l__eb_backend_bibtex_bool
+          {
+            \LoadPackage[sort&compress]{natbib}
+            \BibtexPostset
+          }
+          {
+            \BiblatexPreset
+            \LoadPackage{biblatex}
+            \BiblatexPostset
+          }
+      }
+  }
+
+\lstdefinestyle{easy-listings}
+  {
+    language      = [LaTeX]TeX,
+    texcsstyle    =
+      {
+        *\lst@ifdisplaystyle
+          \bfseries\color{ctex@verb}
+        \else
+          \color{ctex@verb}
+        \fi
+      },
+    basicstyle    =
+      {
+        \ttfamily\lst@ifdisplaystyle
+          \small
+        \else
+          \color{ctex@verb}
+        \fi
+      },
+    keywordstyle  =
+      {
+        \lst@ifdisplaystyle
+          \bfseries\color{ctex@verb}
+        \else
+          \color{ctex@verb}
+        \fi
+      },
+    framexleftmargin  = 0pt,
+    framexrightmargin = 0pt,
+    xleftmargin       = 3pt,
+    xrightmargin      = 3pt,
+    numbersep         = 10pt,
+    framesep          = 3pt,
+    frame             = single,
+    rulecolor         = \color{ctex@frame},
+    commentstyle      = \color{SlateGray},
+    emphstyle         = \color{ctex@emph},
+    % emph              = {},
+    morekeywords      =
+      {
+        includegraphics,setmainfont,setsansfont,setmonofont,setCJKmainfont,setCJKsansfont,setCJKmonofont,setCJKfamilyfont,RequirePackage
+      }
+  }
+\lstset
+  {
+    style         = easy-listings,
+    breaklines    = true,
+    resetmargins  = true,
+    % numbers       = left,
+    numberstyle   = \footnotesize,
+    aboveskip     = 1.5ex plus .2ex minus .1ex,
+    belowskip     = 0.55ex plus .2ex minus .1ex,
+    keepspaces    = true,
+    framerule     = \l__eb_rule_width_dim,
+    columns       = flexible,
+    abovecaptionskip  = -1ex,
+    belowcaptionskip  = 1.5ex
+  }
+\lstloadlanguages{C,C++,Java,Python,Matlab}
+
+\clist_new:N \l__eb_hyperref_clist
+\cs_new_protected:Npn \eb_put_hyperref:n #1
+  { \clist_put_right:Nn \l__eb_hyperref_clist {#1} }
+\cs_new_protected:Npn \eb_define_linkcolor:nnn #1#2#3
+  { \definecolorset{HTML}{ctex@}{}{link,#1;url,#2;cite,#3} }
+\cs_new_protected:Npn \eb_define_themecolor:nnn #1#2#3
+  { \definecolorset{HTML}{ctex@}{}{frame,#1;emph,#2;verb,#3} }
+\cs_new_protected:Npn \eb_define_linkcolor:n #1
+  { \definecolorset{HTML}{ctex@}{}{link,#1;url,#1;cite,#1} }
+\cs_new_protected:Npn \eb_define_themecolor:n #1
+  { \definecolorset{HTML}{ctex@}{}{frame,#1;emph,#1;verb,#1} }
+\cs_new_protected:Npn \DeclareLinkColor #1
+  { \eb_ctex_define:nx { refset } { \eb_linkcolor_set:n {#1} } }
+\cs_new_protected:Npn \DeclareThemeColor #1
+  { \eb_ctex_define:nx { style } { \eb_themecolor_set:n {#1} } }
+\cs_new:Npn \eb_linkcolor_set:n #1
+  {
+    linkcolor/\clist_item:nn {#1} { 1 } .code:n =
+      {
+        \eb_define_linkcolor:nnn
+          { \clist_item:nn {#1} { 2 } }
+          { \clist_item:nn {#1} { 3 } }
+          { \clist_item:nn {#1} { 4 } }
+        \eb_put_hyperref:n
+          {
+            linkcolor = ctex@link,linkbordercolor = ctex@link,
+            urlcolor  = ctex@url,urlbordercolor   = ctex@url,
+            citecolor = ctex@cite,citebordercolor = ctex@cite
+          }
+      },
+  }
+\cs_new:Npn \eb_themecolor_set:n #1
+  {
+    color/\clist_item:nn {#1} {1} .code:n =
+      {
+        \eb_define_themecolor:nnn
+          { \clist_item:nn {#1} { 2 } }
+          { \clist_item:nn {#1} { 3 } }
+          { \clist_item:nn {#1} { 4 } }
+      },
+  }
+
+\bool_set_false:N \l__eb_toc_number_color_bool
+\eb_ctex_define:nn { refset }
+  {
+    linktype .choice:,
+    linktype .value_required:n  = true,
+    linktype/edge .code:n       = { },
+    linktype/none .code:n       = \eb_put_hyperref:n { hidelinks },
+    linktype/various .code:n    =
+      {
+        \bool_set_true:N \l__eb_toc_number_color_bool
+        \eb_put_hyperref:n { colorlinks }
+      },
+
+    linktoc .choice:,
+    linktoc/unknown .code:n =
+      {
+        \eb_put_hyperref:n { linktoc = #1 }
+        \clist_map_inline:nn { page,none }
+          {
+            \tl_if_eq:NnT \l_keys_value_tl {##1}
+              { \clist_map_break:n { \colorlet{ctex@toc@number}{black} } }
+          }
+      },
+    linktoc .default:n      = all,
+    linktoc .initial:n      = all,
+    unknown .code:n         =
+      {
+        \eb_put_hyperref:x
+          {
+            \l_keys_key_str
+            \tl_if_empty:NF \l_keys_value_tl { = {#1} }
+          }
+      }
+  }
+\eb_ctex_define:nx { refset }
+  {
+    linkcolor .choice:,
+    \clist_map_function:nN
+      {
+        { fresh,     62d71f,0000B2,005752 },
+        { cutepink,  ff69b4,9d5196,57b5e5 },
+        { navyblue,  000080,004986,eb6877 },
+        { crimson,   dc143c,00c1c9,afcd20 }
+      }
+      \eb_linkcolor_set:n
+    linkcolor .default:n  = navyblue,
+    linkcolor .initial:n  = navyblue,
+    linkcol-all .code:n   =
+      { \eb_define_linkcolor:n { \exp_not:n {#1} } }
+  }
+\colorlet{ctex@toc@number}{ctex@link}
+\eb_ctex_define:nx { style }
+  {
+    color .choice:,
+    color .value_required:n = true,
+    \clist_map_function:nN
+      {
+        { none,      000000,000000,000000 },
+        { seaside,   4169e1,708090,9932cc },
+        { energy,    f39800,00a0e9,893895 },
+        { cyberpunk, 601986,eb6877,a4005b }
+      }
+      \eb_themecolor_set:n
+    color .initial:n  = none,
+    color-all .code:n =
+      { \eb_define_themecolor:n { \exp_not:n {#1} } }
+  }
+
+\cs_new:Npn \eb_allow_urlbreak:
+  {
+    \cs_new:Npn \eb_add_urlbreak_points:
+      { \tl_map_function:NN \c__eb_urlbreak_points_tl \do }
+    \eb_appto_cmd:Nn \UrlBreaks
+      { \UrlOrds\eb_add_urlbreak_points: }
+  }
+\tl_const:Nn \c__eb_urlbreak_points_tl
+  {
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    abcdefghijklmnopqrstuvwxyz
+    0123456789
+  }
+\ctex_at_end_preamble:n
+  {
+    \LoadPackage{hyperref}
+    \urlstyle{same}
+    \eb_allow_urlbreak:
+    \ctex_hypersetup:n { pdfstartview = FitH }
+    \exp_args:NV \hypersetup \l__eb_hyperref_clist
+  }
+
+\labelformat{part}{\CTEXthepart}
+\labelformat{chapter}{\CTEXthechapter}
+\labelformat{figure}{\figurename~#1}
+\labelformat{table}{\tablename~#1}
+\cs_if_free:NT \bibname { \cs_set_eq:NN \bibname \refname }
+\tl_if_eq:NnTF \l__ctex_scheme_tl { chinese }
+  {
+    \keys_set_known:nn { ctex }
+      {
+        contentsname        = 目\hspace{\ccwd}录,
+        indexname           = 索\hspace{\ccwd}引,
+        abstractname        = 摘\hspace{\ccwd}要,
+        listfigurename      = 图片索引,
+        listtablename       = 表格索引,
+        lstlistlistingname  = 代码索引,
+        lstlistingname      = 代码
+      }
+    \labelformat{equation}{式（#1）}
+    \labelformat{section}{节 #1}
+    \labelformat{subsection}{小节 #1}
+  }
+  {
+    \keys_set_known:nn { ctex }
+      {
+        abstractname        = Abstract,
+        lstlistlistingname  = List~of~Codes,
+        lstlistingname      = Code
+      }
+    \labelformat{equation}{Equation~(#1)}
+    \labelformat{section}{Section~#1}
+    \labelformat{subsection}{Subsection~#1}
+  }
+\endinput
+%%
+%% End of file `easybase.sty'.

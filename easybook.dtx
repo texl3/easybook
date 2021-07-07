@@ -1,0 +1,3326 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2021 by Qu Yi <quee123@foxmail.com>
+%
+% This work may be distributed and/or modified under the
+% conditions of the CC-BY 4.0 License.
+% The latest version of this license is in
+%   https://creativecommons.org/licenses/by/4.0/legalcode
+% \fi
+%
+% \iffalse
+%<*driver>
+\documentclass[fontset = fandol]{ctxdoc}
+\OnlyDescription
+\begin{document}
+  \DocInput{\jobname.dtx}
+  \IndexLayout
+  \PrintChanges
+  \PrintIndex
+\end{document}
+%</driver>
+% \fi
+%
+% \changes{v1.20}{2021/01/09}{修改和完善用户文档。}
+% \changes{v1.20}{2021/01/09}{模板更改为使用 CC-BY 许可协议。}
+% \changes{v1.25}{2021/05/03}{取消附带的示例文件，可查看历史版本及其它来源的使用样例。}
+% \changes{v1.25}{2021/06/02}{将模块的代码独立出来为 \pkg{easybase} 宏包，适用于 \CTeX 文档类。}
+%
+% \title{\sffamily easybook 文档类手册}
+% \author{瞿毅}
+% \date{2021/07/06\hskip\ccwd\relax v1.26x\thanks{\url{https://gitee.com/texl3/easybook}}}
+%
+% \maketitle
+% \begin{abstract}
+%   \cls{easybook} 是基于 \cls{ctexbook} 书籍文档类创建以极简为风格的模板，可以看作对 \cls{ctexbook} 的进一步包装与增强。虽然 \CTeX 文档类提供了较好的中文支持，但想实现个性化功能一般需要在其基础上载入更多宏包来定制。\cls{easybook} 考虑了一些细节并已载入一些常用宏包用于实现一般的排版需求，同时也具有 \cls{article} 文档类的功能，使用户可以简便地进行设置。它适用于排版中英文学位论文、学术书籍或者是笔记。
+% \end{abstract}
+% \tableofcontents
+%
+% \section{使用说明}
+% 使用 \cls{easybook} 文档类编写文档前您可能需要满足以下的条件：
+% \begin{itemize}
+%   \item 使用 \hologo{XeLaTeX}（推荐）或 \hologo{LuaLaTeX} 两种编译方式。
+%   \item 由于用到了一些 \LaTeX 和宏包较新的功能，建议安装最新的 \TeX 发行版，例如 \TeX Live 2021 或 \hologo{MiKTeX} 21.2 之后的版本。
+%   \item 虽然手册对基本用法做了介绍，但这并不是入门教程，您应当具有一定的 \LaTeX 使用基础。
+% \end{itemize}
+%
+% \subsection{基本用法}
+% 以下一份简单的 \TeX 文档演示了 \cls{easybook} 的最基本用法，在导言区进行宏包载入与文档设置，一些详细的使用样例会不定期上传在 \href{https://www.latexstudio.net/}{\LaTeX 工作室} 的网站。
+% \begin{frameverb}
+%   \documentclass{easybook}
+%
+%   \ctexset{键值列表}
+%   \usepackage{宏包列表}
+%
+%   \begin{document}
+%   \chapter{欢迎}
+%   \section{Welcome to easybook}
+%     Hello, \LaTeX
+%   \end{document}
+% \end{frameverb}
+%
+% 或者直接使用 \pkg{easybase} 宏包，它的宏包选项有 \opt{class}、\opt{draft}、\opt{paper} 和 \opt{floatpage}，包含了节 \ref{sec:interface options} 所示各个模块接口命令的功能，目前只适用于 \cls{ctexbook} 和 \cls{ctexart} 文档类。
+% \begin{frameverb}
+%   \documentclass{ctexbook}
+%
+%   \usepackage{easybase}
+%   \ctexset{键值列表}
+%
+%   \usepackage{宏包列表}
+%
+%   \begin{document}
+%   \chapter{欢迎}
+%   \section{Welcome to easybook}
+%     Hello, \LaTeX
+%   \end{document}
+% \end{frameverb}
+%
+% \subsection{编译方式}
+% 假设您的 \TeX 源文件名为 \opt{easybook.tex}，需要使用参考文献和索引功能，并使用 \hologo{XeLaTeX} 和 \hologo{BibTeX} 引擎编译文档，那么需要在命令行中执行：
+% \begin{frameverb}
+%   xelatex -shell-escape easybook
+%   bibtex easybook
+%   makeindex easybook
+%   xelatex -shell-escape easybook
+%   xelatex -shell-escape easybook
+% \end{frameverb}
+% 当然也可以使用 \opt{latexmk} 及一些软件自带的编译工具，这里就不做介绍。 \\
+% \ding{72} 需要注意正确 \textbf{编译索引} 要增加 \opt{-shell-escape} 命令行选项。
+%
+% \subsection{字体设置}
+% \label{subsec:font settings}
+% 默认使用 \CTeX 预置中文字库，当开启 \opt{font = noto} 选项时需要安装开源字体，中文使用方正系列的{\songti 方正书宋}、{\heiti 方正黑体}、{\kaishu 方正楷体}和{\fangsong 方正仿宋}，英文使用思源系列的{\rmfamily Noto Serif}、{\sffamily Noto Sans}和{\ttfamily Noto Sans Mono}，数学字体默认使用 \pkg{notomath}。相关选项可以见节 \ref{sec:document class options} 中的 \opt{font} 选项，字体点击此处下载\href{https://wwe.lanzoui.com/b01ns361i}{下载地址}。
+%
+% 如果您不想使用 \CTeX 默认字体和方正、思源字体，\textbf{自定义字体} 需启用选项 \opt{font = none}，并可在导言区设置中文字体，粗体与斜体不设置会产生警告。
+% \begin{ctexexam}
+%   \setCJKmainfont{SimSun}[BoldFont = SimHei,ItalicFont = KaiTi]
+%   \setCJKsansfont{SimHei}
+%   \setCJKmonofont{FangSong}
+% \end{ctexexam}
+%
+% \section{文档类选项}
+% \label{sec:document class options}
+% 标准 \cls{book} 文类与 \cls{ctexbook} 文类的选项同样适用于本文档。除此之外选项分为两类
+% \begin{itemize}
+%   \item 带有 \rexptarget\rexpstar{} 号的选项，需要在引入文档类的时候设定。
+%   \item 带有 \exptarget\expstar{} 号的选项，需要通过 \CTeX 宏集提供的用户接口命令 \tn{ctexset} 或节 \ref{sec:interface options} 中此选项所属模块接口命令设定。
+% \end{itemize}
+%
+% \begin{function}[rEXP,added = 2021-01-05]{draft}
+% 开启草稿模式会加快编译速度，表现有显示页面边框、行溢出的地方显示黑色方块、图片变成占位方框、显示当前日期和关闭超链接渲染。不载入 \pkg{tcolorbox} 宏包支持盒子环境也会提高编译速度，详情见小节 \ref{subsec:box}。
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-01-05]{newline}
+% 部分和章标题的样式为另起一行，符合一般英文书籍的习惯。类似下面的效果：
+% \begin{flushleft}\sffamily\LARGE
+%   Chapter 1\vskip 1.3pc
+%   This is a title
+% \end{flushleft}
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-01-05,updated = 2021-04-08]{scheme}
+% \begin{syntax}
+%   scheme = <(chinese)|plain>
+% \end{syntax}
+% \opt{scheme} 代表文档的主题，扩展了此选项在 \CTeX 文档类中原有的作用范围，\opt{plain} 选项可使各类标题变为英文形式。包括章节标题、图表标题和定理标题等。如 \textbf{第一章} 变为 \textbf{Chapter 1}，\textbf{图1.1} 变为 \textbf{Table 1.1}。
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-01-05,updated = 2021-04-29]{enmode}
+% 同时开启 \opt{newline} 和 \opt{scheme = plain} 选项以符合英文原生风格。
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-01-05,updated = 2021-06-18]{font}
+% \begin{syntax}
+%   font = <adobe|fandol|mac|windows|linux|noto|(auto)|none>
+% \end{syntax}
+% 传递给 \cls{ctexbook} 设置字体，最好不要使用原有的 \opt{fontset} 选项，默认情况下使用自定义字体而不开启这个选项，可根据安装的字体及电脑系统选取。\opt{noto} 与 \opt{none} 选项的相关描述见小节 \ref{subsec:font settings}，\opt{auto} 是一个各系统通用选项，会检测系统环境选取对应字体。
+% \changes{v1.21}{2021/01/12}{默认字体与 \CTeX 一致，不再是自定义字体。}
+% \changes{v1.25}{2021/05/04}{修复使用 \pkg{xeCJK} 与 \pkg{fontspec} 宏包的字体设置命令在 \hologo{LuaLaTeX} 下失效的问题。}
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-01-05,updated = 2021-01-13]{paper}
+% \begin{syntax}
+%   paper = <(a4paper)|b5paper|c5paper|letterpaper|...>
+% \end{syntax}
+% 设置页面大小，交给 \pkg{geometry} 宏包处理，可使用它支持的所有规格。建议选项 \opt{b5paper} 和 \opt{zihao = 5}，选项 \opt{a4paper} 和 \opt{zihao = -4} 配合。
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-01-08,updated = 2021-04-20]{config}
+% \begin{syntax}
+%   config = <配置文件名>
+% \end{syntax}
+% \opt{config} 为载入用户配置选项，配置文件名不需加括号但需带有后缀名如 \opt{tex}、\opt{def} 和 \opt{cfg}。
+% \changes{v1.10}{2021/01/08}{加入载入用户配置选项。}
+% \end{function}
+%
+% \begin{function}[rEXP,added = 2021-06-15]{floatpage}
+% \begin{syntax}
+%   floatpage = <true|(false)>
+% \end{syntax}
+% 开启这个选项后浮动环境 \env{table} 和 \env{figure} 的比例参数会使用默认值，关闭它则尽可能避免出现浮动页，使图表环境与正文段落更加紧凑，减少多余的空白版面。
+% \changes{v1.26x}{2021/06/15}{增加浮动环境比例参数选项 \opt{floatpage}。}
+% \end{function}
+%
+% \subsection{article 模式}
+% \begin{function}[rEXP,added = 2021-03-16]{class}
+% \begin{syntax}
+%   class = <(book)|article>
+% \end{syntax}
+% 使用 \cls{easybook} 文档类可以有两种模式，默认为 \cls{book} 模式。选用 \opt{article} 会变为 \opt{oneside} 单面排版，同时使文档编号、结构等与标准 \cls{article} 文档类的特性相似，可用于短篇幅的文章，不需要再使用 \tn{chapter} 命令，此时节 \ref{sec:document command} 中目录命令的 \opt{chapter} 选项会失效，将以 \opt{section} 标题级别输出目录。也可以使用 \opt{book} 或 \opt{article} 选项指定文档类型。如果使用 \cls{ctexart} 配合 \pkg{easybase} 宏包，则 \opt{book} 宏包选项会失效。
+% \changes{v1.23}{2021/03/16}{增加 article 文章模式，可用于短篇幅的文章。}
+% \end{function}
+%
+% \section{文档命令}
+% \label{sec:document command}
+% \subsection{文区命令}
+% \begin{function}[added = 2021-02-20,updated = 2021-04-29]{\frontmatter,\mainmatter,\backmatter,\cleardoublepage}
+% \begin{syntax}
+%   \tn{frontmatter*}\oarg{编号格式|(Roman)}
+%   \tn{mainmatter*}
+%   \tn{backmatter}
+%   \tn{cleardoublepage}\oarg{页面风格|(empty)}
+% \end{syntax}
+% \tn{frontmatter} 为前言区命令，章标题不编号，页码可设置为例如 \opt{roman}、\opt{Alph} 等格式，带有星号的命令 \tn{frontmatter*} 不使用清双页命令 \tn{cleardoublepage}。\tn{mainmatter} 为主文区命令，章标题正常编号且页码为从 1 开始计数的阿拉伯数字，\tn{mainmatter*} 命令不使用 \tn{cleardoublepage}。\tn{backmatter} 为后记区命令，页码格式与编号保持不变，章标题不编号。在奇数页使用命令 \tn{cleardoublepage} 时可选参数为下一页多出的空白偶数页的页面风格，默认为 \opt{empty} 即空的页眉页脚。
+% \changes{v1.23}{2021/02/20}{重新定义文档结构划分命令。}
+% \end{function}
+%
+% \subsection{目录命令}
+% \begin{function}[added = 2021-02-20,updated = 2021-06-06]{\tableofcontents,\listoffigures,\listoftables,\listoflstlistings}
+% \begin{syntax}
+%   \tn{tableofcontents+}\oarg{键值列表}\parg{附加代码}
+%   \tn{listoffigures*+}\oarg{键值列表}
+%   \tn{listoftables*+}\oarg{键值列表}
+%   \tn{listoflstlistings*+}\oarg{键值列表}
+% \end{syntax}
+% \tn{listoffigures} 命令输出图片目录，\tn{listoftables} 输出表格目录，\tn{listoflstlistings} 输出代码目录。带有星号的目录命令不将标题添加进主文档目录，带有 + 号的目录命令可以使当前标题编号。\tn{tableofcontents+} 的 + 号含义则是输出双语目录，需要与双语目录标题命令 \tn{bichapter} 等或设置图片、表格和代码等英文目录的标题配合使用，附加代码是中文与英文目录之间的代码，可以插入目录样式和换页等命令。可选参数的 \meta{键值列表} 如下：
+% \changes{v1.25}{2021/05/05}{命令 \tn{tableofcontents} 可以输出双语目录。}
+% \end{function}
+%
+% \begin{function}{multoc,columns,title,format,aftertitle,pagestyle,chapter,section}
+% \begin{syntax}
+%   multoc = <true|(false)>
+%   columns = <目录栏数|(2)>
+%   title = \{<中文目录标题>,<英文目录标题>\}
+%   format = <目录标题格式>
+%   aftertitle = <目录标题后的代码>
+%   pagestyle = <标题页的页面格式>
+% \end{syntax}
+% \opt{multoc} 与 \opt{style/multoc} 选项具有相同的效果，但是具有优先性且可单独设置不同目录是否多栏排版，栏数默认为双栏，可使用 \opt{columns} 更改。\opt{title} 选项用于更改目录的标题，标题之间用一个英文逗号分开，也可以只有一部分，表示中文目录的标题。当设置了英文目录标题时，英文目录标题将会自动加入主文档目录，与 \tn{tableofcontents+} 配合输出。
+% \changes{v1.23}{2021/03/15}{为几个目录增加键值列表的选项，可设置标题输出级别以及是否加入主目录。}
+% \changes{v1.24}{2021/04/04}{目录命令的可选参数增加标题键值。}
+% \changes{v1.25}{2021/06/02}{目录可设置多栏，并在 article 模式仍然生效。}
+% \end{function}
+%
+% 在书籍模式且 \opt{chapter} 选项开启或者文章模式的情况下，\opt{format} 用于设置目录标题的格式，\opt{aftertitle} 选项的代码将被插入到目录标题内容之后，\opt{pagestyle} 是目录标题所在页的页面格式，除此之外还支持 \opt{ctexset/chapter} 或 \opt{ctexset/section} 所有的章节标题样式选项。\opt{chapter} 选项使目录标题按照 chapter 级别输出，\opt{section} 选项使目录标题按照 section 级别输出，默认为 chapter 级别。
+%
+% \subsection{标题命令}
+% \begin{function}[added = 2021-05-05,updated = 2021-06-13]{\bichapter,\bisection,\bisubsection}
+% \begin{syntax}
+%   \tn{bichapter*}\oarg{目录中文标题}\marg{中文标题}\marg{目录英文标题}
+%   \tn{bisection*}\oarg{目录中文标题}\marg{中文标题}\marg{目录英文标题}
+%   \tn{bisubsection*}\oarg{目录中文标题}\marg{中文标题}\marg{目录英文标题}
+% \end{syntax}
+% 双语目录的标题命令目前设置了常用的三个级别，它们将中文标题正常输出，并使中英文标题加入双语目录。类似于标准文档类，这三个标题命令分别具有 bichapter、bisection 和 bisubsection 三个计数器，并对应 \tn{the}\meta{计数器} 的值，可以用于 \opt{binumber} 选项更改英文目录中的编号。这个功能是为国内一些高校的学位论文模板的要求设计，在一般情况和英文模式下 \textbf{不需要使用}。
+% \changes{v1.25}{2021/05/05}{增加与双语目录配合的标题命令。}
+% \end{function}
+%
+% 它们的星号变体命令使文中标题不编号，但是仍然加入双语目录，若英文标题参数空置那么仅加入中文目录而不加入英文目录，这一特点与 \tn{chapter*} 等命令的行为不太一样，在一些情况下会用到。可选参数是目录中的中文标题，默认与中文标题一致，正文标题过长时可用它设置在目录中显示的标题。双语目录的格式默认是一致的，共享使用 \tn{tocset} 的设置，英文目录的章级别标题名及编号的修改方式如下：
+%
+% \begin{function}{chapter/biname,chapter/binmuber}
+% \begin{syntax}
+%   biname = \{<英文目录前名字|(Chapter\tn{space})>,<英文目录后名字>\}
+%   binmuber = <英文目录数字输出命令|(\tn{arabic\{chapter\}})>
+% \end{syntax}
+% 类似 \CTeX 的 \opt{name} 和 \opt{nmuber} 选项，它们用于设置主文区 \tn{bichapter} 等标题命令在英文目录中的前后名字与编号，目前只支持通常改变名字与编号的 chapter 级别。
+% \end{function}
+%
+% \begin{function}[added = 2021-05-05,updated = 2021-06-13]{\appendix,\BeforeAddBitoc}
+% \begin{syntax}
+%   \tn{appendix}[<英文附录目录前名字>,<英文附录目录后名字>]\parg{英文附录目录数字输出命令}
+%   \tn{BeforeAddBitoc*}\marg{加入目录英文标题前的代码}
+% \end{syntax}
+% \tn{appendix} 命令后的章节标题变为附录形式。英文目录中附录标题的格式用可选参数修改，英文附录目录前名字默认为 Appendix\tn{space}，后名字默认为空，名字之间用一个半角逗号分开，也可以只有一部分，表示英文附录目录前名字。英文附录目录数字输出命令默认为 \tn{Alph}\{chapter\}。
+% \changes{v1.26x}{2021/06/13}{增加调整英文目录格式的钩子 \tn{BeforeAddBitoc}。}
+% \end{function}
+%
+% \tn{BeforeAddBitoc} 是一个作用于局部范围的英文目录钩子，可以插入标题或目录设置的命令改变英文目录中标题的显示格式，也可以覆盖上述的目录前后名字和编号等设置，带有星号的命令会重置之前的代码，放置在导言区或 \tn{bichapter} 等命令前生效。
+%
+% \subsection{上标和下标}
+% \begin{function}[added = 2021-06-26]{\super,\sub,\supersub,\textsuperscript,\textsubscript}
+% \begin{syntax}
+%   \tn{super*}\oarg{垂直偏移|(0pt)}[<高度>,<深度>]\parg{格式代码}\marg{内容}\oarg{水平偏移|(0pt)}
+%   \tn{sub*}\oarg{垂直偏移|(0pt)}[<高度>,<深度>]\parg{格式代码}\marg{内容}\oarg{水平偏移|(0pt)}
+%   \tn{supersub*}\oarg{上下标间距|(0.3ex)}\oarg{对齐方式|(l)|c|r}\parg{上标代码}
+%   \          \marg{上标内容}\marg{下标内容}
+%   \          \oarg{水平偏移|(0pt)}\parg{下标代码}
+% \end{syntax}
+% 上标和下标的功能来自 \pkg{spbmark} 宏包，\tn{super}、\tn{sub} 和 \tn{supersub} 三个命令可以用于输出上标和下标。它们根据当前处于文本模式还是数学模式来匹配相应的模式，或者可以使用它们的星号变体命令来强制使用数学模式。也可以使用键值列表对偏移量进行全局设置，详情见小节 \ref{subsubsec:super-sub-script}。
+% \changes{v1.26x}{2021/06/28}{增加可以调整相对位置和格式的上标和下标命令 \tn{super}、\tn{sub} 和 \tn{supersub}。}
+% \end{function}
+%
+% 垂直和水平偏移默认值都是 0 pt，\meta{对齐方式} 的参数与 \opt{supersubalign} 相同。\meta{格式代码} 用于格式化上标和下标，可以插入字体或颜色等命令。代码中的最后一个命令可以接受一个为上标或下标的参数。上标和下标命令还分别具有更简短的等价命令 \tn{sp}、\tn{sb} 和 \tn{spb}。
+%
+% \section{接口选项}
+% \label{sec:interface options}
+% \begin{function}[added = 2021-01-05]{\ctexset}
+% \begin{syntax}
+%   \tn{ctexset}\marg{键值列表}
+% \end{syntax}
+% \cls{easybook} 扩展了 \CTeX 宏集 \LaTeX 3风格键值的通用控制命令 \tn{ctexset}，接口选项同样可用它设置， 原有的 \meta{键值列表} 仍然可用。本文档类目前有九个模块用于实现常规的排版功能，如下表所示，它们既是统一接口 \tn{ctexset} 的路径，也是相关模块的接口命令名：
+% \begin{center}
+%   \begin{tabular}{*{5}{c}}
+%     \toprule
+%     \hyperref[subsec:style]{风格} & \hyperref[subsec:other font]{其它字体} & \hyperref[subsec:spacing]{行距} & \hyperref[subsec:hyperlinks]{超链接} & \hyperref[subsec:reference]{参考文献} \\
+%     style & subfont & spread & refset & bibset \\
+%     \midrule
+%     \hyperref[subsec:theorem of style]{定理样式} & \hyperref[subsec:page margins]{页面尺寸} & \hyperref[subsec:header and footer]{页眉页脚} & \hyperref[subsec:catalog style]{目录样式} & \\
+%     thmset & geoset & hdrset & tocset & \\
+%     \bottomrule
+%   \end{tabular}
+% \end{center}
+% \end{function}
+%
+% \subsection{风格}
+% \label{subsec:style}
+% \begin{function}[EXP,added = 2021-01-05,updated = 2021-07-03]{color,color-all,multoc,withpart,footwith,rulewidth,uppercase,figurepath}
+% \begin{syntax}
+%   color = <(none)|seaside|energy|cyberpunk>
+%   color-all = <HTML颜色代码>
+%   multoc = <true|(false)>
+%   withpart = <true|(false)>
+%   footwith = <part|(chapter)|page>
+%   rulewidth = <线宽|(0.75pt)>
+%   uppercase = <(true)|false>
+%   figurepath = \{\{<路径名1>\}\{<路径名2>\}\}
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{style/...}
+% \changes{v1.10}{2021/01/08}{更改颜色实现方式与选项名。}
+% \changes{v1.23}{2021/02/02}{noto风格的数学字体独立出来，可自定义设置。}
+% \changes{v1.23}{2021/02/09}{增加控制页面横线粗细的选项。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[color] 预置了四种主题颜色，默认主题 \opt{none} 为黑白页面，主题颜色不包括超链接。
+%     \begin{function}{\DeclareThemeColor}
+%     \begin{syntax}
+%       \tn{DeclareThemeColor}\{<风格名称>,<ctex@frame>,<ctex@emph>,<ctex@verb>\}
+%     \end{syntax}
+%     可以使用 \tn{DeclareThemeColor} 命令声明新的主题颜色，它的参数以英文逗号分隔，第一部分为颜色风格名称，后面三部分为 HTML 颜色代码，构成主题颜色。类似地更改超链接颜色见小节 \ref{subsec:hyperlinks}。
+%     \changes{v1.26x}{2021/07/03}{使用 \tn{DeclareThemeColor} 命令声明新的颜色风格。}
+%     \end{function}
+%   \item[color-all] 统一设置主题的各部分颜色，参数是 6 个十六进制数字组成的 HTML 颜色代码，任意颜色的代码可以在常见的图片处理工具拾色器中查看。
+%   \item[multoc] 开启多栏目录，与节 \ref{sec:document command} 中目录命令的同名选项有相同效果。
+%   \item[withpart] 使章跟随每一部分编号，默认不跟随。
+%   \item[footwith] 使脚注跟随编号的计数器，默认跟随章，当开启新的一章时脚注编号从 1 开始。
+%   \item[rulewidth] 调整页眉、定理盒子以及代码框线条的粗细。
+%   \item[uppercase] 使用 \tn{rightmark} 及 \tn{leftmark} 获取标题内容设置页眉页脚时英文是否大小写。
+%   \item[figurepath] 设置插入图片的文件夹路径名，可以有多个路径名，但需要包含在括号内作为间隔，即使只有一个路径。
+% \end{optdesc}
+%
+% \subsubsection{连接符}
+% \begin{function}[EXP,added = 2021-01-05,updated = 2021-07-02]{figure-con,table-con,listing-con,equation-con,number-con}
+% \begin{syntax}
+%   figure-con = <图片连接符|(.)>
+%   table-con = <表格连接符|(.)>
+%   listing-con = <代码连接符|(.)>
+%   equation-con = <公式连接符|(.)>
+%   number-con = <连接符|(.)>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{style/...} \\
+% 上面几个选项用于设置相应编号的连接符，\opt{number-con} 统一设置所有编号的连接符。
+% \changes{v1.23}{2021/03/15}{增加控制编号连接符的选项。}
+% \end{function}
+%
+% \subsubsection{上标和下标}
+% \label{subsubsec:super-sub-script}
+% \begin{function}[EXP,added = 2021-06-26]{super-vshift,super-hshift,sub-vshift,sub-hshift,supersubsep,supersubalign}
+% \begin{syntax}
+%   super-vshift = <刚性长度|(0pt)>
+%   super-hshift = <刚性长度|(0pt)>
+%   sub-vshift = <刚性长度|(0pt)>
+%   sub-hshift = <刚性长度|(0pt)>
+%   supersubsep = <刚性长度|(0.3ex)>
+%   supersubalign = <(l)|c|r>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{style/...} \\
+% 可以使用 \tn{spbset} 命令设置上述选项。各垂直和水平偏移的参数对应 \tn{super} 等上标下标命令的参数，并且具有优先性。\opt{supersubsep} 选项是 \tn{supersub} 命令中上标和下标的间距，\opt{supersubalign} 选项则是上标与下标的水平对齐方式，有左对齐、居中对齐和右对齐。
+% \end{function}
+%
+% \subsection{超链接}
+% \label{subsec:hyperlinks}
+% \begin{function}[EXP,added = 2021-01-05,updated = 2021-07-03]{linktype,linkcolor,linkcol-all,linktoc}
+% \begin{syntax}
+%   linktype = <(edge)|various|none>
+%   linkcolor = <fresh|cutepink|(navyblue)|crimson>
+%   linkcol-all = <HTML颜色代码>
+%   linktoc = <none|section|page|(all)>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{refset/...} \\
+% \opt{refset} 将超链接选项（包括以上选项）交给 \pkg{hyperref} 处理，除了一些关于 pdf 书签的选项可能会失效，其它由键值选项命令 \tn{hypersetup} 支持的多数选项可用。
+% \changes{v1.10}{2021/01/08}{修复了 \opt{linktopage} 选项关闭时目录中标题编号无超链接的问题。}
+% \changes{v1.23}{2021/03/19}{修复在 \pkg{ctex} v2.5.6 更新后 \cls{easybook} 与 \pkg{hyperref} 冲突问题。}
+% \changes{v1.24}{2021/04/05}{增加 \pkg{hyperref} 超链接选项完整的支持。}
+% \changes{v1.25}{2021/05/06}{模块名 \opt{link} 改为 \opt{refset}，\opt{link} 作为兼容性保留。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[linktype] \opt{edge} 使超链接为边框形式，\opt{various} 使超链接变为彩色，预置了四种颜色样式。\opt{none} 关闭超链接边框与颜色，此时 \opt{linkcolor} 选项无效。
+%   \item[linkcolor] 超链接颜色样式。
+%     \begin{function}{\DeclareLinkColor}
+%     \begin{syntax}
+%       \tn{DeclareLinkColor}\{<风格名称>,<ctex@link>,<ctex@url>,<ctex@cite>\}
+%     \end{syntax}
+%     可以使用 \tn{DeclareLinkColor} 命令声明新的超链接颜色样式，它的参数以英文逗号分隔，第一部分为颜色风格名称，后面三部分为 HTML 颜色代码，构成超链接颜色。
+%     \changes{v1.26x}{2021/07/03}{使用 \tn{DeclareLinkColor} 命令声明新的超链接颜色。}
+%     \end{function}
+%   \item[linkcol-all] 统一设置超链接的各部分颜色，参数是 6 个十六进制数字组成的 HTML 颜色代码，任意颜色的代码可以在常见的图片处理工具拾色器中查看。
+%   \item[linktoc] 将目录中的超链接取消、置于标题上、置于页码上或置于标题和页码上。
+% \end{optdesc}
+%
+% \subsection{行距}
+% \label{subsec:spacing}
+% \begin{function}[EXP,added = 2021-01-05,updated = 2021-05-17]{line,table,math,caption,footnote,spread-all}
+% \begin{syntax}
+%   line = <数值|(1.3)>
+%   table = <数值|(1.05)>
+%   math = <数值|(1.05)>
+%   caption = <数值|(1)>
+%   footnote = <数值|(1)>
+%   spread-all = <数值|(empty)>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{spread/...} \\
+% 行距因子用于设置各种行距倍数，只能是浮点数，不能带有长度单位。各行距既可在导言区全局设置也可正文中设置对后面生效，行距的意义为：
+% \changes{v1.21}{2021/01/12}{增加脚注线间的距离选项。}
+% \changes{v1.23}{2021/02/09}{取消使用 \pkg{zhlineskip} 宏包设置数学间距。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[line] 正文行距，\tn{ctexset} 原有的行距选项 \opt{linespread} 失效。
+%   \item[table] 表格行距，对传统表格环境 \env{tabular}、\env{tabularx} 以及 \pkg{tabularray} 宏包的 \env{tblr} 环境生效，同时 \env{tblr} 也自带有 \opt{stretch} 选项设置行距。
+%   \item[math] 数学环境行距，包括 \pkg{amsmath} 和 \pkg{mathtools} 宏包附带的环境，但并未加载 \pkg{mathtools} 宏包。
+%   \item[caption] 图表代码标题行距。
+%   \item[footnote] 脚注行距。
+%   \item[spread-all] 统一设置上述各种行距。
+% \end{optdesc}
+%
+% \subsection{其它字体}
+% \label{subsec:other font}
+% \begin{function}[EXP,added = 2021-01-08,updated = 2021-05-19]{table-cap,figure-cap,listing-cap,footnote,marginpar,math}
+% \begin{syntax}
+%   table-cap = <(\tn{sffamily}\tn{small})>
+%   figure-cap = <(\tn{sffamily}\tn{small})>
+%   listing-cap = <(\tn{sffamily}\tn{small})>
+%   footnote = <(\tn{rmfamily})>
+%   marginpar = <(\tn{rmfamily}\tn{footnotesize})>
+%   math = <times|(noto)|notosans|scholax|stix|charter|ebgaramond|libertine|none>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{subfont/...}
+% \changes{v1.10}{2021/01/08}{加入自定义非正文字体选项。}
+% \changes{v1.23}{2021/02/08}{修复使用 \tn{zihao} 命令设置字体失效的问题。}
+% \changes{v1.25}{2021/05/31}{其它字体模块名由 \opt{elsefont} 改为 \opt{subfont}，并增加数学字体的选项 \opt{subfont/math}。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[table-cap] 表格标题的字体设置，包括字体族、字体系列、字体尺寸和字体形状命令。
+%   \item[figure-cap] 图片标题的字体设置，包括字体族、字体系列、字体尺寸和字体形状命令。
+%   \item[listing-cap] 代码标题的字体设置，包括字体族、字体系列、字体尺寸和字体形状命令。
+%   \item[footnote] 设置脚注标记与内容的字体，包括字体族、字体系列、字体尺寸和字体形状命令。
+%   \item[marginpar] 边注的字体设置，包括字体族、字体系列、字体尺寸和字体形状命令。
+%   \item[math] 选择合适的数学字体，将会加载 \pkg{newtxmath} 和 \pkg{bm} 宏包。使用选项 \opt{none} 时可以使用 \pkg{unicode-math} 等其它数学字体宏包定义字体。
+% \end{optdesc}
+%
+% \subsection{参考文献}
+% \label{subsec:reference}
+% \begin{function}[EXP,added = 2021-01-11,updated = 2021-06-13]{backend,bib-style,cite-style,datafile}
+% \begin{syntax}
+%   backend = <(bibtex)|biblatex>
+%   bib-style = <(numerical)|authoryear|其它格式>
+%   cite-style = <标注风格>
+%   datafile = <参考文献数据库名>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{bibset/...}
+% \changes{v1.21}{2021/01/11}{增加 \opt{bibset} 选项，可以使用 \hologo{BibTeX} 或 \hologo{biber} 编译参考文献。}
+% \changes{v1.23}{2021/02/23}{使用 \opt{bibset} 选项时可设置标注风格。}
+% \changes{v1.24}{2021/04/09}{可以不载入参考文献包手动配置参考文献格式。}
+% \changes{v1.25}{2021/05/12}{取消 \opt{bib-loadpkg} 选项，由是否设置参考文献数据库来决定载入宏包。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[backend] 参考文献处理后端，默认用传统的 \hologo{BibTeX} 处理参考文献。
+%   \item[bib-style] 参考文献格式为中国的参考文献推荐标准 GB/T 7714-2015，有顺序编码制和著者-出版年制两种风格，理工科类一般使用顺序编码制，文科类一般使用著者-出版年制。若使用其它格式，使用 \hologo{BibTeX} 处理时需确保正确的 \opt{bst} 文件，使用 \hologo{biber} 处理可使用 \pkg{biblatex} 宏包支持的参考文献风格名称。
+%   \item[cite-style] 标注参考文献的风格，\opt{backend = bibtex} 选项下可使用 \opt{super}（数字上标标注，默认）或 \opt{numbers}（数字标注）等 \pkg{natbib} 宏包带有的标注风格，\opt{backend = biblatex} 选项下可使用 \pkg{biblatex} 宏包支持的标注风格名称。
+%   \item[datafile] 参考文献数据库的文件名，可以是单个文件也可以是以括号包裹并以英文逗号分隔的文件列表，使用 \hologo{biber} 处理时要带有 \opt{bib} 后缀，若不在当前文件夹名称需要包含路径。只有设置数据库的文件名才会载入 \pkg{natbib} 或 \pkg{biblatex} 宏包，之后才可使用相关配置命令，否则需要手动载入相关宏包配置参考文献。
+% \end{optdesc}
+%
+% \begin{function}[added = 2021-01-11,updated = 2021-04-09]{\printbibliography,\BibtexPostset,\BiblatexPreset,\BiblatexPostset}
+% \begin{syntax}
+%   \tn{printbibliography}\oarg{键值列表}
+% \end{syntax}
+% 不设置参考文献数据库名时 \opt{bibset} 中的选项会失效，但是后三个命令保存了 \opt{bibset} 模块预置的参考文献选项与配置，与对应宏包配合使用它们时 \opt{bibset} 中的选项仍然有效，也可以不使用它们完全自行设置参考文献方案。设置参考文献数据库名时对它们重新定义也可以达到重新设置参考文献的效果。
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[\tn{printbibliography}] 两种方式 \textbf{均使用} 此命令打印参考文献，不同处理后端此命令的 \meta{键值列表} 不同。使用 \hologo{BibTeX} 处理时选项与节 \ref{sec:document command} 目录的选项相同，使用 \hologo{biber} 处理时常用的选项如下：
+%     \begin{function}{heading,title}
+%     \begin{syntax}
+%     heading = <bibliography|subbibliography|(bibintoc)|subbibintoc>
+%     title = <参考文献标题名>
+%     \end{syntax}
+%     \opt{heading} 为参考文献标题的处理方式，\opt{bibliography} 选项以 \opt{chapter} 级别输出参考文献，不加进目录，\opt{subbibliography} 选项以 \opt{section} 级别输出参考文献，不加进目录，\opt{bibintoc} 选项以 \opt{chapter} 级别输出参考文献，加进目录，\opt{subbibintoc} 选项以 \opt{section} 级别输出参考文献，加进目录。\opt{title} 选项覆盖由 \opt{heading} 选项提供的缺省标题名。除此之外其他支持选项可见 \pkg{biblatex} 宏包说明文档。
+%     \end{function}
+%   \item[\tn{BibtexPostset}] 这是 \pkg{natbib} 宏包的配置命令，需要与 \pkg{natbib} 配合并放在载入其之后使用，默认保存了参考文献风格和标题的设置。
+%   \item[\tn{BiblatexPreset}]  这是 \pkg{biblatex} 宏包的前配置命令，需要与 \pkg{biblatex} 配合并放在载入其之前使用，默认保存了参考文献风格的设置。若重新定义可使用 \tn{PassOptionsToPackage} 命令向 \pkg{biblatex} 传递它支持的各种参考文献选项。
+%   \item[\tn{BiblatexPostset}]  这是 \pkg{biblatex} 宏包的后配置命令，需要与 \pkg{biblatex} 配合并放在载入其之后使用，默认保存了参考文献标题的设置。
+% \end{optdesc}
+%
+% \subsection{定理样式}
+% \label{subsec:theorem of style}
+% \begin{function}[EXP,added = 2021-01-12,updated = 2021-07-01]{thmbox,within,headpunct,bodyfont,notefont,headfont,headindent,spaceabove,spacebelow,spacepost,headformat,brackets}
+% \begin{syntax}
+%   thmbox = <true|(false)>
+%   within = <(chapter)|section|其它环境|空置>
+%   headpunct = <(empty)>
+%   bodyfont = <(empty)>
+%   notefont = <(empty)>
+%   headfont = <(\tn{color}\{ctex@emph\}\tn{sffamily})>
+%   headindent = <刚性长度|(0\tn{ccwd})>
+%   spaceabove = <弹性长度|(0.75ex plus .1ex)>
+%   spacebelow = <弹性长度|(0.75ex plus .1ex)>
+%   spacepost = <刚性长度|(\tn{ccwd})>
+%   headformat = <(\tn{NAME}\tn{space}\tn{NUMBER}\tn{NOTE})>
+%   brackets = \{<左括号>,<右括号>\}
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{thmset/...}
+% \changes{v1.21}{2021/01/12}{增加配置定理环境样式的选项。}
+% \changes{v1.26x}{2021/07/01}{增加配置公式标签括号选项 \opt{brackets}。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[thmbox] 开启定理环境盒子的边框，需载入 \pkg{tcolorbox} 宏包才生效。这个选项与 \pkg{thmtools} 中并不一致，\pkg{thmtools} 的同名选项包括 L、M 和 S 三个参数。
+%   \item[within] 定理编号跟随的计数器，默认跟随章的编号，也可以跟随其它定理环境的编号，当计数器增加时定理编号会从零开始，空置时不跟随其它计数器。
+%   \item[headpunct] 定理标题末尾后的标记，在换行符或第一段内容的间隔之前。
+%   \item[bodyfont] 定理内容部分的字体。
+%   \item[notefont] 定理题注部分的字体。
+%   \item[headfont] 定理标题部分的字体。
+%   \item[headindent] 定理标题的缩进，默认无缩进，可用 \tn{parindent} 命令设置为段落缩进。
+%   \item[spaceabove] 定理环境前的间距。
+%   \item[spacebelow] 定理环境后的间距。
+%   \item[spacepost] 定理标题后与第一段内容的间隔。
+%   \item[headformat] 定理开头部分各组成元素的排列和格式，这个选项一般不需要使用，其中 \tn{NAME}、\tn{NUMBER} 和 \tn{NOTE} 分别代表标题、编号和题注。
+%   \item[brackets] 设置行间公式编号标签的括号，以英文逗号分隔，分别为左右括号。
+% \end{optdesc}
+%
+% \begin{function}[added = 2021-01-12,updated = 2021-06-15]{\declaretheorem,\DeclareTheorem,\declaretheoremstyle}
+% \begin{syntax}
+%   \tn{declaretheorem}\oarg{键值列表}\marg{定理环境名}
+%   \tn{DeclareTheorem}\marg{定理环境名}\oarg{英文标题}\marg{中文标题}\parg{盒子样式|(tc-theorem)}\oarg{键值列表}
+%   \tn{declaretheoremstyle}\oarg{键值列表}\marg{定理样式名}
+% \end{syntax}
+% 文档类已预置 8 个定理环境，环境名及对应的定理标题名见小节 \ref{subsec:theorem}，如果需要新的定理标题名或定理样式可使用这两个命令，由 \pkg{thmtools} 提供支持，用法与它的同名命令一致。
+% \changes{v1.23}{2021/03/12}{重新定义了新定理环境命令 \tn{newtheorem}。}
+% \changes{v1.24}{2021/04/25}{增加定义定理环境命令 \tn{DeclareTheorem}。}
+% \changes{v1.26x}{2021/06/15}{定义新定理环境的命令调整为 \tn{declaretheorem}。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[\tn{declaretheorem}] 定义新的定理类环境，\tn{newtheorem} 命令与它等效。\meta{键值列表} 中常用的选项如下
+%     \begin{description}
+%       \item[name] 定理的标题。默认值是环境的名称，并且首字母大写（英文标题）。
+%       \item[numbered] 值为 \opt{no}、\opt{yes} 或 \opt{unless unique}。定理可以被编号、不被编号或者只有在文档中多次出现时才被编号。
+%       \item[numberlike] 定理将使用此计数器进行编号，通常这是另一个定理环境的名称。
+%       \item[style] 用 \tn{declaretheoremstyle} 定义的定理样式的名称，定理将使用这种样式的设置。
+%     \end{description}
+%   \item[\tn{DeclareTheorem}] \tn{DeclareTheorem} 是更便捷的定理命令，它定义一个新的定理环境，\meta{键值列表} 支持的选项与 \tn{declaretheorem} 相同，但它们的区别有：
+%     \begin{itemize}
+%       \item 中英文模式下标题不同，英文标题为可选项，默认为首字母大写的环境名。
+%       \item 自动定义交叉引用的格式，引用标签前缀为定理名称。
+%       \item 定理盒子选项 \opt{thmbox} 仍然生效，盒子样式选项是用于设置定理盒子样式的名称，它需要 \pkg{tcolorbox} 的 \tn{tcbset} 接口命令设定，默认为 \opt{tc-theorem}。
+%       \item 默认使用 \opt{easy-theorem} 定理样式，可在最后一个选项使用 \opt{style} 更改样式。
+%     \end{itemize}
+%   \item[\tn{declaretheoremstyle}] 定义新的定理样式，\meta{键值列表} 中包括上述定理样式以及 \tn{declaretheorem} 的所有选项。
+% \end{optdesc}
+%
+% \subsubsection{新的定理样式}
+% 预置定理的样式为 \opt{easy-theorem}，上述定理样式选项将对这个定理样式生效。如果使用这个样式而只是增加新的定理名称，可以这样：
+% \begin{ctexexam}
+%   \DeclareTheorem{定理环境名}{中文标题}[style = other theorem]
+%   \declaretheorem[style = easy-theorem,name = 定理名]{定理环境名}
+% \end{ctexexam}
+% \tn{declaretheorem} 定义的定理环境需要手动增加盒子边框，可以如下进行设置：
+% \begin{ctexexam}
+%   \tcolorboxenvironment{定理环境名}{tc-theorem}
+% \end{ctexexam}
+% 定义一个新的定理样式可用于 \tn{declaretheorem} 的 \opt{style} 选项：
+% \begin{ctexexam}
+%   \declaretheoremstyle[bodyfont = \rmfamily,spacepost = 0.5\ccwd]{定理样式名}
+% \end{ctexexam}
+%
+% \subsection{页面尺寸}
+% \label{subsec:page margins}
+% \begin{function}[EXP,added = 2021-01-13,updated = 2021-06-02]{headruleskip,footruleskip,left,top,hmargin,textwidth,includehead}
+% \begin{syntax}
+%   headruleskip = <页眉线间距>
+%   footruleskip = <页脚线间距>
+%   left = <页面左边距>
+%   top = <页面上边距>
+%   hmargin = \{<左边距>,<右边距>\}
+%   textwidth = <页面文本区宽度>
+%   includehead = <true|(false)>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{geoset/...} \\
+% 预置的页面尺寸与 \cls{Word} 的默认值接近，\opt{geoset} 会将前两个之外的选项交给 \pkg{geometry} 宏包接口命令 \tn{geometry} 处理，并且 \meta{键值列表} 的选项与之相同，上面的选项仅是一小部分，支持的参数可查阅宏包帮助文档。当在此设置页面大小时，会覆盖 \opt{paper} 选项的设置。
+% \changes{v1.21}{2021/01/13}{增加配置页面尺寸的选项。}
+% \end{function}
+%
+% \begin{ctexexam}
+%   \geoset
+%     {
+%       headruleskip  = 3pt,
+%       top           = 2.5cm,
+%       bottom        = 2.5cm,
+%       left          = 3.2cm,
+%       right         = 3.2cm,
+%       ignoreall
+%     }
+% \end{ctexexam}
+%
+% \subsection{页眉页脚}
+% \label{subsec:header and footer}
+% \begin{function}[EXP,added = 2021-01-13,updated = 2021-06-14]{head-foot,chap-mark,sec-mark,subsec-mark,chap-label,sec-label,subsec-label,headrule,footrule,footnoterule}
+% \begin{syntax}
+%   head-foot = <页眉页脚中的内容>
+%   chap-mark = <\tn{chaptermark} 标志命令的内容>
+%   sec-mark = <\tn{sectionmark} 标志命令的内容>
+%   subsec-mark = <\tn{subsectionmark} 标志命令的内容>
+%   chap-label = <\tn{chaptermark} 标志命令的标签>
+%   sec-label = <\tn{sectionmark} 标志命令的标签>
+%   subsec-label = <\tn{subsectionmark} 标志命令的标签>
+%   headrule = <页眉横线格式>
+%   footrule = <页脚横线格式>
+%   footnoterule = <脚注横线格式>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{hdrset/...} \\
+% \opt{hdrset} 设置的命令由 \pkg{fancyhdr} 宏包提供支持。设置章节标志选项 \opt{chap-mark}、\opt{sec-mark} 和 \opt{subsec-mark} 时已做了情形考虑，不需要使用 \tn{markboth} 或 \tn{markright} 命令，其中参数 \#1 代表当前章、节或小节的标题。\opt{chap-mark} 和 \opt{sec-mark} 选项在 book 模式时有意义，\opt{sec-mark} 和 \opt{subsec-mark} 选项在 article 模式时有意义，这与标准文档类的行为一致。也可以直接重新定义这些标志命令，但此时 \opt{style/uppercase} 选项失效，这时可以用例如 \tn{MakeUppercase} 命令来设置标志内容的大小写。
+% \changes{v1.21}{2021/01/11}{修复单面文档时页眉横线消失的问题。}
+% \changes{v1.21}{2021/01/13}{增加配置页眉页脚的选项。}
+% \changes{v1.23}{2021/03/08}{优化页眉页脚设置，增加 \opt{chap-mark} 和 \opt{sec-mark} 标志选项。}
+% \changes{v1.23}{2021/03/14}{可以手动绘制页眉、页脚和脚注的横线。}
+% \changes{v1.24}{2021/04/09}{增加 \opt{subsec-mark} 标志选项，仅在 article 模式生效。}
+% \end{function}
+%
+% 标签选项 \opt{chap-label}、\opt{sec-label} 和 \opt{subsec-label} 用于设置标志命令中的标签，包括标题编号和与标题内容之间的距离，它们比标志命令内容的选项更常用，可选参数是编号，必选参数是距离命令：
+% \begin{ctexexam}
+%   \hdrset
+%     {
+%       chap-label  = [\thechapter]{\hspace{\ccwd}},
+%       sec-mark    = \CTEXifname{\CTEXthesection——}{}#1
+%     }
+% \end{ctexexam}
+% \opt{headrule}、\opt{footrule} 和 \opt{footnoterule} 三个选项可以使用 \tn{hrule} width \meta{长度} height \meta{高度} 或下述 \tn{markrule} 命令来绘制横线，脚注线默认为空。当然，手动绘制横线时线条粗细选项 \opt{style/rulewidth} 会失效。
+%
+% \begin{function}[added = 2021-01-13,updated = 2021-06-14]{\easyhead,\easyfoot,\markrule}
+% \begin{syntax}
+%   \tn{easyhead}\oarg{位置}\marg{内容}
+%   \tn{easyfoot}\oarg{位置}\marg{内容}
+%   \tn{markrule}\oarg{长度|(\tn{textwidth})}\parg{颜色名}\marg{线宽|(0.75pt)}[<上间距>+<下间距>]
+% \end{syntax}
+% 命令 \tn{easyhead} 和 \tn{easyfoot} 的使用方法与 \tn{fancyhead} 和 \tn{fancyfoot} 完全相同，它们需要在 \opt{head-foot} 选项中使用，设置的是一个名为 \opt{fancy} 的页面风格。\pkg{fancyhdr} 将页眉页脚分成了左中右和奇数页（odd）、偶数页（even）共12个部分，可选参数中E、O代表偶数、奇数，L、C、R代表左、中、右部分。单面打印时，含有偶数的选项无效。
+% \changes{v1.26x}{2021/06/14}{增加页眉页脚的横线绘制命令 \tn{markrule}。}
+% \end{function}
+%
+% 命令 \tn{markrule} 用于绘制页眉页脚横线，长度默认为页面文本区的宽度，上下间距为横线与上下方部件的间距，带有长度单位，间距长度之间用 + 号分开，若只有一部分则表示上间距，这个命令也可以在正文中绘制横线。下面举一个设置页眉内容的例子：
+% \begin{ctexexam}
+%   \hdrset
+%     {
+%       head-foot =
+%         {
+%           \easyhead[ER]{\leftmark}
+%           \easyhead[OL]{\rightmark}
+%           \easyhead[EL,OR]{\textbf{\thepage}}
+%         },
+%       headrule  = \markrule(DarkViolet){0.5pt}[2pt+2pt]
+%     }
+% \end{ctexexam}
+%
+% \subsubsection{脚注格式}
+% \begin{function}[EXP,added = 2021-05-12]{fnmargin,fnparskip,fnparindent,fnhang,fnmark-pos,fnmark-num,fnmark-num,fnmark-form,afterfnmark}
+% \begin{syntax}
+%   fnmargin = <脚注首段缩进|(0.75\tn{ccwd})>
+%   fnparskip = <脚注段落间距|(0ex)>
+%   fnparindent = <脚注段落缩进|(2\tn{ccwd})>
+%   fnhang = <(true)|false>
+%   fnmark-pos = <normal|(super)>
+%   fnmark-num = <(plain)|pifont|pifont*|pifont-sans|pifont-sans*>
+%   fnmark-form = <脚注标记格式>
+%   afterfnmark = <脚注标记后的代码>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{hdrset/...} \\
+% 上面几个选项用于设置脚注格式，\opt{fnparskip} 和 \opt{fnparindent} 选项仅在 \opt{fnhang = true} 时有效。\opt{fnhang} 用于将脚注设置为悬挂缩进的格式，\opt{fnmark-pos} 选项设置脚注编号的位置，正常文本或是上标形式。\opt{fnmark-num} 选项设置脚注编号的格式，默认为原生样式 \opt{plain}，还可以改为 \opt{pifont} 的各个版本，从左往右依次为普通版、阴文衬线版、阳文无衬线版和阴文无衬线版，缺点是它们的编号仅包括 1-10。
+% \changes{v1.25}{2021/05/12}{增加脚注样式设置选项。}
+% \end{function}
+%
+% \opt{fnmark-form} 是脚注标记的格式，在此设置字体命令会覆盖 \opt{subfont/footnote} 的设置，最后一个格式命令可以带有一个参数，这个参数接受脚注编号，一般配合 \opt{fnmark-num = plain} 使用。\opt{afterfnmark} 是脚注标记后的代码，一般用于设置标记与文本间的距离。
+%
+% \subsection{目录样式}
+% \label{subsec:catalog style}
+% \begin{function}[EXP,added = 2021-01-13,updated = 2021-05-14]{format,format+,indent,rule,numsep}
+% \begin{syntax}
+%   format = <目录标题格式>
+%   format += <目录标题格式>
+%   indent = <目录标题左边缩进>
+%   rule = <目录引导线样式>
+%   numsep = <编号后间距|(\tn{ccwd})>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{tocset/(level)/...} \\
+% \opt{tocset} 将目录样式交给 \pkg{titletoc} 处理，\opt{(level)} 代表 part、chapter、section、subsection、figure、table 和 lstlisting 级别的目录，而使用 \opt{list} 级别可以统一设置图片、表格和代码目录的样式。
+% \changes{v1.21}{2021/01/13}{增加配置目录样式的选项。}
+% \changes{v1.24}{2021/04/20}{增加目录中编号与标题的间距选项 \opt{numsep}。}
+% \changes{v1.25}{2021/05/14}{可以分别设置图片、表格和代码目录的格式。}
+% \end{function}
+%
+% \opt{format} 是目录中标题的格式，可以设置字体和加入垂直间距等，垂直间距最好使用无间距重合的 \tn{addvspace} 命令，带有加号的 \opt{format+} 选项用于在已有的格式命令后附加内容。\opt{indent} 是目录中标题在页面左侧的缩进距离，应该有长度单位。\opt{rule} 选项中一般应当使用 \tn{tocrule} 命令，将会在接下来介绍。\opt{numsep} 是有编号的标题在目录中编号与标题的间距。
+%
+% \begin{function}[added = 2021-01-13,updated = 2021-06-11]{\tocrule,\EBNumberLine}
+% \begin{syntax}
+%   \tn{tocrule}*\oarg{引导点间距|(0.7pc)}\parg{引导点大小|(1.2)}\marg{引导点}\oarg{页码格式}
+%   \tn{EBNumberLine}\marg{编号类型}
+% \end{syntax}
+% \tn{tocrule} 命令生成目录引导线，需要在 \opt{rule} 选项中使用。带有星号的命令会使当前级别的目录引导线右边与页码连接而不是对齐。引导点间距需带有长度单位，引导点大小不带单位，为引导点符号正常大小的倍数，引导点一般为英文句号或 \tn{cdot} 中心点符号。页码格式的内容位于页码前面，可以设置页码字体和距离等，最后一个格式命令可以带有一个参数，这个参数接受页码编号。
+% \end{function}
+%
+% \tn{EBNumberLine} 命令类似 \CTeX 的 \tn{CTEXnumberline} 命令，用于 \opt{tocline} 选项中设置目录标签的编号。区别是它需要在 \opt{tocset/hang = false} 时使用，否则目录中无法显示标题编号，使用它的时候 \opt{numsep} 选项仍然有效。\meta{编号类型} 为 \opt{chapter} 和 \opt{section} 等，也可用参数 \#1 代替当前级别类型，标题名用参数 \#2 代替一般不变。
+%
+% \begin{ctexexam}
+%   \tocset
+%     {
+%       chapter =
+%         {
+%           format  = \addvspace{8pt}\large,
+%           indent  = 1.5\ccwd,
+%           rule    = \tocrule[0.6pc](1.1){.}[\zihao{5}]
+%         }
+%     }
+% \end{ctexexam}
+%
+% \begin{function}[EXP,added = 2021-01-13,updated = 2021-05-14]{level/belowoffset,lolskip,tocline-fig,tocline-tab,tocline-lst,belowoffset,line-align,hang,numsep-all,indent-all,rule-all}
+% \begin{syntax}
+%   belowoffset = <长度|(0pc)>
+%   lolskip = <长度|(0.8pc)>
+%   tocline-fig = <图片目录标签>
+%   tocline-tab = <表格目录标签>
+%   tocline-lst = <代码目录标签>
+%   belowoffset = <长度|(-1pc)>
+%   line-align = <(true)|false>
+%   hang = <true|(false)>
+%   numsep-all = <编号后间距|(\tn{ccwd})>
+%   indent-all = <目录标题左边缩进>
+%   rule-all = <目录引导线样式>
+% \end{syntax}
+% \ding{229} 以上选项路径为 \opt{tocset/(level)/...} 或 \opt{tocset/...}
+% \changes{v1.24}{2021/04/05}{可以设置图、表和代码目录的标签。}
+% \changes{v1.24}{2021/04/06}{增加目录引导线右边对齐方式。}
+% \changes{v1.24}{2021/04/19}{给目录增加 \opt{hang} 样式选项。}
+% \changes{v1.24}{2021/05/01}{给目录增加 \opt{format+} 和 \opt{rule-all} 选项。}
+% \end{function}
+%
+% \begin{optdesc}
+%   \item[lolskip] \opt{lolskip} 是代码目录中章之间的代码标题的距离，与 \CTeX 的表格目录和图片目录中章之间的标题距离选项 \opt{lotskip} 和 \opt{lofskip} 类似，它们的值均默认 0.8 pc，在 article 模式中此选项失效。
+%   \item[belowoffset] \opt{belowoffset} 选项为主文档目录标题下方的间距补偿，一般为负值，用于抵消 \opt{format} 中额外的垂直间距。\opt{(level)} 中的 \opt{belowoffset} 与之意义类似，代表 figure、table 和 lstlisting 三个级别，也可以使用 \opt{list} 统一设置，一般为正值。
+%   \item[tocline] 目录标签整体使用 \opt{tocline} 设置，在图表标签的参数中 \#1 代表编号，代码标签中则是 \tn{thelstlisting} 代表编号，标签中还可包含标签名称，默认标签名称与图、表和代码环境的标题名称一致。下面举个设置标签的例子：
+%   \begin{ctexexam}
+%   \tocset
+%     {
+%       hang        = false,
+%       tocline-fig = 图 #1\hspace{\ccwd},
+%       tocline-lst = 代码\thelstlisting\hspace{\ccwd}
+%     }
+%   \end{ctexexam}
+%   \item[line-align] \opt{line-align} 选项可以使目录引导线右边对齐并与页码保持一定间隙，否则会与页码连接。
+%   \item[hang] \opt{hang} 选项使目录标题为悬挂缩进形式，缩进距离为编号及其与标题间距的长度，但此时目录编号会失去超链接。
+%   \item[numsep-all] 统一设置所有有编号的标题在目录中编号与标题的间距。
+%   \item[indent-all] 统一设置所有级别的目录标题左边缩进。
+%   \item[rule-all] 统一设置所有级别的目录引导线样式。
+% \end{optdesc}
+%
+% \section{常用环境}
+%
+% \subsection{公式}
+% \begin{function}[added = 2021-01-05]{equation,multline,gather,align}
+% \begin{syntax}
+%   \tn{begin}\marg{环境名}
+%   \  <行间公式>
+%   \tn{end}\marg{环境名}
+% \end{syntax}
+% \pkg{amsmath} 宏包提供了一系列数学环境，它们可以排布各种对齐或不对齐的公式组。\env{multline} 环境用于一行无法放下的长公式，\env{gather} 环境用于每行居中的公式组，\env{align} 环境用于多列对齐的公式组。
+% \end{function}
+%
+% \subsection{表格}
+% \begin{function}[added = 2021-05-17]{tblr,tabularx,tabular}
+% \begin{syntax}
+%   \tn{begin}\marg{环境名}\marg{环境选项}
+%   \  <表格内容>
+%   \tn{end}\marg{环境名}
+% \end{syntax}
+% \pkg{tabularray} 是一个较新的宏包，不仅提供了 \pkg{tabularx}、\pkg{multirow}、和 \pkg{booktabs} 宏包的功能，并且不依赖其它宏包与它们同时使用不会产生冲突，还实现了用简便的键值列表方式设置表格样式。目前除了表头斜线以及跨页功能存在不足，其它方面已满足对表格绝大多数格式的需求，具体用法可见宏包的说明文档。
+% \changes{v1.25}{2021/05/17}{使用功能更便捷齐全的 \pkg{tabularray} 宏包设置表格样式。}
+% \end{function}
+%
+% \subsection{列表}
+% \begin{function}[added = 2021-01-05,updated = 2021-04-08]{enumerate,enumerate*,itemize,itemize*,description,description*}
+% \begin{syntax}
+%   \tn{begin}\marg{环境名}\oarg{键值列表}
+%   \  \tn{item} <列表内容>
+%   \tn{end}\marg{环境名}
+% \end{syntax}
+% \pkg{enumitem} 宏包为系统预置的列表环境 \env{enumerate}、\env{itemize}和 \env{description} 提供了更灵活的标签以及间距的控制，可使用 \tn{setlist} 命令设置原有的三种列表格式，也可以直接使用可选参数的 \meta{键值列表}，具体选项见 \pkg{enumitem} 宏包文档。已为三种列表预置了三个级别的格式可相互嵌套，默认标签与 \cls{book} 文档类相同，若自定义标签可例如：
+% \changes{v1.24}{2021/04/08}{重新优化列表环境的配置。}
+% \end{function}
+%
+% \begin{ctexexam}
+%   \begin{enumerate}[label = \arabic*(a),leftmargin = 1cm,resume]
+%   \begin{itemize}[label = \textbullet]
+%   \begin{description}[font = \sffamily\bfseries,style = nextline]
+% \end{ctexexam}
+%
+% \subsubsection{排序列表}
+% \label{subsec:sort list}
+% 使用 \opt{enumerate} 环境可创建排序列表，使用 \env{enumerate*} 环境产生行内部列表，可以使用 \textbf{A、a、I、i和1} 作为可选项为 \env{enumerate} 与 \env{enumerate*} 格式化标签。若生成 \textbf{Item I、Item II、Item III} 格式可以这样：
+% \begin{ctexexam}
+%   \begin{enumerate*}[(a)]
+%   \begin{enumerate}[\bfseries{Item} I]
+% \end{ctexexam}
+%
+% \subsubsection{常规列表}
+% 使用 \env{itemize} 环境可创建不计数列表，列表环境中若换行不缩进，若在列表中分段后则缩进两字符。 \opt{itemize*} 为行内常规列表，举一个用$\star$取代默认的符号的例子：
+% \begin{ctexexam}
+%   \begin{itemize*}[$\star$]
+%   \begin{itemize}[$\star$]
+% \end{ctexexam}
+%
+% \subsubsection{主题列表}
+% 使用 \env{description} 环境可创建带有主题词的列表。
+% \begin{ctexexam}
+%   \begin{description}
+%     \item[主题一] 内容一
+%     \item[主题二] 内容二
+%   \end{description}
+% \end{ctexexam}
+%
+% \subsection{定理}
+% \label{subsec:theorem}
+% \begin{function}[added = 2021-01-05,updated = 2021-01-08]{theorem,definition,lemma,corollary,proposition,example,remark,proof}
+% \begin{syntax}
+%   \tn{begin}\marg{环境名}\oarg{定理题注}
+%   \  <定理内容>
+%   \tn{end}\marg{环境名}
+% \end{syntax}
+% 这些是已预置的定理环境，它们的盒子边框可使用 \opt{thmset/thmbox = false} 关闭，其中注与证明环境不编号，证明末尾会自动添加证明结束符，声明新的定理环境见小节 \ref{subsec:theorem of style}。环境名对应的定理标题名如下：
+% \begin{center}
+%   \begin{tabular}{*{8}{c}}
+%     \toprule
+%     theorem & definition & lemma & corollary & proposition & example & remark & proof \\
+%     定理 & 定义 & 引理 & 推论& 性质 & 例 & 注 & 证明 \\
+%     \bottomrule
+%   \end{tabular}
+% \end{center}
+% \end{function}
+%
+% \subsection{习题}
+% \label{subsec:exercise}
+% \begin{function}[added = 2021-01-05,updated = 2021-07-03]{exercise}
+% \begin{syntax}
+%   \tn{begin}\marg{exercise}*+\oarg{键值列表}\parg{键值列表}\oarg{键值列表}
+%   \  \tn{item} <习题内容>
+%   \tn{end}\marg{exercise}
+% \end{syntax}
+% 习题环境 \env{exercise} 的标题紧接上一节编号并加入目录与页眉，当使用星号参数时不进行编号，使用 + 号参数独立编号并启用 \pkg{tcolorbox} 支持生成标题，并使 \opt{color} 生效，此时计数器使用的值为 \tn{thetcbcounter}。第三个 \meta{键值列表} 的选项与小节 \ref{subsec:sort list} 排序列表相同，\opt{number} 的编号格式也是如此。第一个 \meta{键值列表} 中包含的选项如下：
+% \changes{v1.23}{2021/02/08}{增加准确的习题盒子标题目录锚点。}
+% \end{function}
+%
+% \begin{function}{color,title,number,numsep,label}
+% \begin{syntax}
+%   color = <标题背景颜色名|(LightSkyBlue)>
+%   title = <环境标题>
+%   number = <习题编号格式|(1.)>
+%   numsep = <编号与标题的间距|(0.5\tn{ccwd})>
+%   label = <标签内容>
+% \end{syntax}
+% 第二个 \meta{键值列表} 在是否使用 + 号参数时用法不同，使用 + 号参数时为 \pkg{tcolorbox} 的盒子选项，例如 \opt{boxrule} 和 \opt{fontupper}。不使用 + 号参数时相当于设置 \tn{ctexset}\{section = {\#1}\} 键值选项列表，例如 \opt{format} 和 \opt{beforeskip}。\opt{label} 选项用于设置习题环境的引用标签，它与标签格式命令 \tn{labelformat} 对应的计数器是 eb@exercise。
+% \end{function}
+%
+% \begin{function}{\setexercise,\exerprologue,\tcphanifname}
+% \begin{syntax}
+%   \tn{setexercise}\marg{键值列表}
+%   \tn{exerprologue}\marg{序言内容}
+%   \tn{tcphanifname}\marg{编号代码}\marg{不编号代码}
+% \end{syntax}
+% 可以通过 \tn{setexercise} 命令使用键值列表设置上述习题选项的默认值。\tn{exerprologue} 命令在习题环境开始前插入一段内容，可以是文本或者代码，需要在每一个习题环境前使用。\tn{tcphanifname} 命令根据使用 \pkg{tcolorbox} 生成的习题标题是否编号，在超链接锚点的位置加入代码。
+% \end{function}
+%
+% \begin{ctexexam}
+%   \tcphanifname{\markright{\UseCounter{tcbcounter}{\quad 习题}}}{}
+%   \exerprologue{习题前的一段文本}
+%   \begin{exercise}+[color = LightSkyBlue](after skip = 3.75ex)[itemsep = 1ex]
+%     \item 习题内容
+%     \item 习题内容
+%   \end{exercise}
+% \end{ctexexam}
+%
+% \subsection{盒子}
+% \label{subsec:box}
+% 使用盒子以及小节 \ref{subsec:exercise} 中的 \env{exercise} 环境需要在导言区 \textbf{手动载入} \pkg{tcolorbox} 宏包，它们的配置 \meta{键值列表} 选项同样由 \pkg{tcolorbox} 提供支持，具体选项可见宏包文档的 Option Keys 一节，可以进行边距、字体及背景颜色等各种个性化设置，一些配置会覆盖之前预置的设置。
+%
+% \subsubsection{摘要盒子}
+% \begin{function}[added = 2021-01-05,updated = 2021-05-02]{outline}
+% \begin{syntax}
+%   \tn{begin}\marg{outline}\oarg{列表配置选项}\parg{标题名称}\oarg{盒子配置选项}
+%   \  \tn{item} <摘要内容>
+%   \tn{end}\marg{outline}
+% \end{syntax}
+% 摘要盒子可用于章前摘要，它的标题是可选参数，默认标题是摘要。列表配置选项与 \pkg{enumitem} 宏包中列表的选项相同，可以设置摘要条目的各种距离。
+% \end{function}
+%
+% \begin{ctexexam}
+%   \begin{outline}[leftmargin = *](标题名称)
+%     \item 摘要内容
+%     \item 摘要内容
+%   \end{outline}
+% \end{ctexexam}
+%
+% \subsubsection{段落盒子}
+% \begin{function}[added = 2021-01-05,updated = 2021-04-19]{easybox}
+% \begin{syntax}
+%   \tn{begin}\marg{easybox}*\oarg{颜色名|(Khaki)}\parg{段落标题}\oarg{配置选项}
+%   \  <盒子内容>
+%   \tn{end}\marg{easybox}
+% \end{syntax}
+% 环境 \env{easybox} 创建一个带有三个可选参数的扁平盒子。使用星号参数时给盒子添加边框，\meta{颜色名} 选项设置背景颜色，\meta{段落标题} 选项可以设置标题，默认无标题。
+% \end{function}
+%
+% \begin{ctexexam}
+%   \begin{easybox}*[DarkCyan](段落标题)
+%     盒子内容
+%     \tcblower   % 盒子上下部分分界线
+%     盒子内容
+%   \end{easybox}
+% \end{ctexexam}
+%
+% \begin{function}[added = 2021-04-19]{ebparbox}
+% \begin{syntax}
+%   \tn{begin}\marg{ebparbox}*\oarg{颜色名|(DarkSlateBlue)}\parg{段落标题}\oarg{配置选项}
+%   \  <盒子内容>
+%   \tn{end}\marg{ebparbox}
+% \end{syntax}
+% 环境 \env{ebparbox} 与 \env{easybox} 类似，同样带有三个可选参数。当使用星号参数时盒子左边带有一条竖线，\meta{颜色名} 选项可以自定义竖线颜色，使用不带有星号的环境则盒子带有竖线颜色的浅色背景。\meta{段落标题} 选项可以设置标题，默认无标题。
+% \changes{v1.24}{2021/04/19}{优化盒子环境的选项，增加可带有标题的扁平盒子 \env{ebparbox}。}
+% \end{function}
+%
+% \subsubsection{行内盒子}
+% \begin{function}[added = 2021-03-13,updated = 2021-04-21]{\eblink,\ebemph}
+% \begin{syntax}
+%   \tn{eblink}\oarg{颜色名}\marg{内容}\oarg{配置选项}
+%   \tn{ebemph}\oarg{颜色名}\marg{内容}\oarg{配置选项}
+% \end{syntax}
+% 设置了两个参数选项相同的行内盒子，盒子 \opt{eblink} 为抄录盒子有三个参数，行内盒子内容是必选参数其他可选。盒子 \opt{ebemph} 也是抄录盒子，具有模糊边缘类似高亮的效果。
+% \end{function}
+%
+% \section{其它用法}
+%
+% \subsection{代码}
+% \begin{function}[added = 2021-01-05]{\lstinline,lstlisting,lstlistlistingname,lstlistingname}
+% \begin{syntax}
+%   \tn{lstinline}\oarg{键值列表}\marg{行内代码}
+%   \tn{begin}\marg{lstlisting}\oarg{键值列表}
+%   \  <行间代码>
+%   \tn{end}\marg{lstlisting}
+% \end{syntax}
+% 加载 \pkg{listings} 宏包以对代码格式进行高度定制，代码样式可使用 \tn{lstset} 命令设置，预置的代码样式名为 \opt{easy-listings}。\opt{lstlistlistingname} 和 \opt{lstlistingname} 分别是代码目录名与代码环境标题名，与 \CTeX 使用手册中标题汉化一节用法相同，可使用 \tn{ctexset} 直接定义。
+% \end{function}
+%
+% \subsection{物理量}
+% \begin{function}[added = 2021-01-05,updated = 2021-05-18]{\num,\unit,\qty,\qtyrange}
+% \begin{syntax}
+%   \tn{num}\oarg{键值列表}\marg{数字}
+%   \tn{unit}\oarg{键值列表}\marg{单位}
+%   \tn{qty}\oarg{键值列表}\marg{数字}\oarg{前缀}\marg{单位}
+%   \tn{qtyrange}\oarg{键值列表}\marg{数字1}\marg{数字2}\marg{单位}
+% \end{syntax}
+% \pkg{siunitx} 宏包的 \tn{num} 命令可以输出以科学计数法表示的数值，单位格式化命令 \tn{unit} 包含文字项目（例如字母或数字）时，使用 . 和 \~{} 放置在单元乘积中间，并使用 \_ 和 \^{} 正确放置指定的下标和上标。格式化方法可在数学和文本模式下使用。而 \tn{qty} 命令可用来输出带有单位的量，\tn{qtyrange} 可以输出带有范围和单位的量。
+% \changes{v1.25}{2021/05/18}{\pkg{siunitx} 宏包 v3.0.0 更新后用法改变，修改相关配置选项。}
+% \end{function}
+%
+% \begin{ctexexam}
+%   \numproduct{-21x3e5}
+%   \unit{mL~min^{-1}}
+%   \qty{5}{\mole}
+%   \qtyrange[unit-color = green]{1.5}{4}{kg}
+% \end{ctexexam}
+%
+% \subsection{计数器}
+% \begin{function}[added = 2021-06-30]{\newcounter,\UseCounter}
+% \begin{syntax}
+%   \tn{newcounter}\marg{计数器}\oarg{父计数器}
+%   \tn{UseCounter*}\oarg{父计数器}\parg{编号|(arabic)}\marg{计数器}\marg{内容}\oarg{分隔符|(.)}\parg{数值}
+% \end{syntax}
+% \tn{newcounter} 是 \LaTeX 自带的创建计数器命令，\tn{UseCounter} 将会以一定的格式使用由它创建的计数器，将会以 \tn{the}\meta{父计数器}\meta{分隔符}\tn{the}\meta{计数器}\meta{内容} 输出当前内容。
+% \changes{v1.26x}{2021/06/30}{增加计数器使用命令 \tn{UseCounter}。}
+% \end{function}
+%
+% 需要注意的是 \tn{UseCounter} 仅具有 \textbf{输出功能}，并不会改变计数器原有的绑定关系。默认每使用一次命令 \meta{计数器} 的值增加 1，带有星号的命令使 \meta{计数器} 保持当前值，\meta{编号} 为 arabic 和 alpha 等格式，\meta{数值} 可以手动将 \meta{计数器} 设为指定值。
+%
+% 在一定的场合下可能用到 \tn{UseCounter} 命令，比如通过新建快捷命令在一些位置使用定理环境的计数器，使用 \tn{labelformat} 设置计数器的引用标签需添加 eb@：
+% \begin{ctexexam}
+%   \labelformat{eb@theorem}{定理 #1}
+%   \newcommand{\theoremhead}[1]
+%     {定理 \UseCounter[chapter]{theorem}{\hspace{\ccwd}#1}}
+%   \theoremhead{定理标题}\label{thm:theorem}
+% \end{ctexexam}
+%
+% \subsection{化学式}
+% \begin{function}[added = 2021-01-05]{\ch,\chemfig}
+% \begin{syntax}
+%   \tn{ch}\oarg{键值列表}\marg{输入}
+%   \tn{chemfig}\oarg{键值列表}\marg{分子代码}
+% \end{syntax}
+% 除了以普通公式的方式，化学式还可用 \pkg{chemformula} 实现，无机化学式使用 \tn{ch} 命令书写。有机化学式推荐在导言区载入 \pkg{chemfig} 宏包，使用 \tn{chemfig} 命令完成。
+% \end{function}
+%
+% \subsection{引用}
+% \begin{function}[added = 2021-01-05,updated = 2021-04-11]{\ref,\labelformat}
+% \begin{syntax}
+%   \tn{ref}\marg{标签}
+%   \tn{labelformat}\marg{计数器}\marg{标签引用格式}
+% \end{syntax}
+% 使用 \tn{ref} 命令引用 \tn{label} 设置的标签，将会检测临近计数器并添加相应的前缀，比如图表、章节标题和定理等。\tn{labelformat} 可以设置标签引用格式，第二个参数中 \#1 代表 \tn{the}\meta{计数器}，可以设置引用序号的前缀和后缀。
+% \changes{v1.24}{2021/04/11}{取消载入 \pkg{cleveref} 宏包来交叉引用。}
+% \end{function}
+%
+% \subsubsection{索引}
+% \begin{function}[added = 2021-05-01,updated = 2021-06-25]{\index,\printindex}
+% \begin{syntax}
+%   \tn{index}\oarg{索引名}\marg{标签}
+%   \tn{printindex*+}\oarg{键值列表}\parg{索引名}
+% \end{syntax}
+% \pkg{imakeidx} 宏包可使用索引的功能，重新定义了它的 \tn{printindex} 命令用于生成索引目录，\meta{键值列表} 及选项与节 \ref{sec:document command} 相同，但 \opt{multoc} 选项和 \pkg{imakeidx} 原本的接口命令 \tn{indexsetup} 部分选项失效。输出不同的索引目录时使用 \meta{索引名} 选项。
+% \changes{v1.24}{2021/05/01}{重新定义 \tn{printindex} 命令与文档适配。}
+% \end{function}
+%
+% \subsubsection{自定义脚注}
+% \begin{function}[added = 2021-01-05]{\Footnote,\Footnotetext,\Footnotemark}
+% \begin{syntax}
+%   \tn{Footnote}\marg{标记}\marg{插入文本}
+%   \tn{Footnotetext}\marg{标记}\marg{插入文本}
+%   \tn{Footnotemark}\marg{标记}
+% \end{syntax}
+% 自定义标记且不影响正常编号的脚注命令。
+% \end{function}
+%
+% \begin{ctexexam}
+%   \Footnote{*}{这是可以自定义标记的脚注。}
+% \end{ctexexam}
+%
+% \subsubsection{边注}
+% \begin{function}[added = 2021-01-05]{\marginnote}
+% \begin{syntax}
+%   \tn{marginnote}\oarg{左文本}\marg{右文本}\oarg{垂直偏移}
+% \end{syntax}
+% 命令 \tn{marginnote} 可以生成简单的边注，如果只给定了 \meta{右文本}，那么边注在奇偶数页文字相同。如果同时给定了 \meta{左文本}，则偶数页使用 \meta{左文本} 的文字。
+% \end{function}
+%
+% \subsection{双语题注}
+% \begin{function}[added = 2021-03-19]{\bicaption,\bicaptionbox}
+% \begin{syntax}
+%   \tn{bicaption}\oarg{目录标题1}\marg{标题2}\oarg{目录标题1}\marg{标题2}
+%   \tn{bicaptionbox}\oarg{目录标题1}\marg{标题2}\oarg{目录标题1}\marg{标题2}
+%   \             \oarg{宽度}\oarg{内部位置}\marg{内容}
+% \end{syntax}
+% 可以实现图表浮动环境的中英文双语题注，使用此功能需要在导言区载入 \pkg{bicaption} 宏包，具体用法见说明文档。
+% \end{function}
+%
+% \subsection{插入文档}
+% \begin{function}[added = 2021-03-14]{\includepdf}
+% \begin{syntax}
+%   \tn{includepdf}\oarg{键值列表}\marg{文档名}
+% \end{syntax}
+% 该命令由 \pkg{pdfpages} 提供，将其他 pdf 文档插入当前文档，比如插入封面，可以指定插入页数、逻辑页和横向等，详情查看宏包文档。
+% \end{function}
+%
+% \subsection{指定行距的段落}
+% \begin{function}[added = 2021-03-14]{spacing}
+% \begin{syntax}
+%   \tn{begin}\marg{spacing}\marg{浮点数}
+%   \  <段落内容>
+%   \tn{end}\marg{spacing}
+% \end{syntax}
+% 该环境由 \pkg{setspace} 提供，可以指定环境内段落的行距，使用浮点数控制行距倍数。
+% \end{function}
+%
+% \subsection{下划线}
+% \begin{function}[added = 2021-04-03]{\uline,\uuline,\uwave}
+% \begin{syntax}
+%   \tn{uline}\marg{下划直线}
+%   \tn{uuline}\marg{下划双直线}
+%   \tn{uwave}\marg{下划波浪线}
+% \end{syntax}
+% \pkg{ulem} 宏包提供了多种下划线命令，下划线的粗细由命令 \tn{ULthickness} 控制，重新定义它需要使用 \tn{renewcommand} 命令。下划线的深度由 \tn{ULdepth} 控制，默认值 \tn{maxdimen} 是一个允许深度根据当前字体变化的特殊标志，当然也可以使用 \tn{setlength} 设定特定深度。
+% \end{function}
+%
+% \section{载入的宏包}
+% 以下为 \cls{easybook} 直接调用的关键宏包，带有 \ding{75} 符号的宏包并未载入它们，仅做了预配置和兼容性处理，可根据需要在导言区手动载入以实现相关的功能。
+% \begin{description}
+%   \item[ctexbook] 提供中文排版的通用框架。
+%   \item[xcolor] 提供任意颜色的设定与混合，已载入了 \opt{svgnames} 颜色库。
+%   \item[footmisc] 更改脚注排版的方法的集合。
+%   \item[amsmath] 提供 \LaTeX 中的数学功能。
+%   \item[thmtools] 用于通常需要的排版定理支持。
+%   \item[marginnote] 增强了边注输出的功能。
+%   \item[spbmark] 定制上标和下标的格式。
+%   \item[setspace] 提供对文档中行间距的支持。
+%   \item[chemformula] 提供了对化学式进行排版的命令。
+%   \item[siunitx] 全面的国际标准单位支持。
+%   \item[ulem] 提供可断行多样式的下划线命令。
+%   \item[geometry] 灵活完整的页面尺寸设置。
+%   \item[pdfpages] 在 \LaTeX 中插入 pdf 文档。
+%   \item[multicol] 混合单栏和多栏排版。
+%   \item[graphicx] 增强了对图形插入的支持。
+%   \item[fancyhdr] 广泛控制页面的页眉和页脚。
+%   \item[titletoc] 设置目录中的标题格式。
+%   \item[caption] 在浮动环境中自定义题注。
+%   \item[tabularray] 完全分离表格的内容和样式，并且可以通过键值方式完全设置表格。
+%   \item[enumitem] 提供列表环境的布局控制。
+%   \item[listings] 可以在 \LaTeX 中排版程序/编程代码。
+%   \item[hyperref] 处理交叉引用命令以及在文档中生成超文本链接。
+%   \item[\ding{75} tcolorbox] 为带有标题线的彩色和带框文本框提供了一个环境。
+%   \item[\ding{75} imakeidx] 可以让文档同时生成和排版一个或多个索引。
+%   \item[\ding{75} bicaption] 提供图表的双语题注。
+%   \item[\ding{75} mathtools] 增强 \pkg{amsmath} 的数学功能。
+%   \item[\ding{75} unicode-math] 处理使用 unicode 编码的数学字体。
+% \end{description}
+%
+% \newcommand\urlprefix{\newline\hspace*{\fill}}
+% \let\OldUrl\url
+% \renewcommand\url[2][]{{\small\textit{#1}~\OldUrl{#2}}}
+% \begin{thebibliography}{99}
+% \bibitem{CTeX}
+% \textsc{CTEX.ORG}.
+% \newblock \textit{\CTeX 宏集手册} [EB/OL].
+% \newblock version 2.5.7,
+% \newblock (2021-06-20)
+% \urlprefix\url{https://ctan.org/pkg/ctex}
+%
+% \bibitem{fduthesis}
+% 曾祥东.
+% \newblock \textit{\pkg{fduthesis}：复旦大学论文模板} [EB/OL].
+% \newblock version 0.7e,
+% \newblock (2020-08-30)
+% \urlprefix\url{https://github.com/stone-zeng/fduthesis}
+%
+% \bibitem{source3}
+% \textsc{The \LaTeX3 Project}.
+% \newblock \textit{The \LaTeX3 Interfaces} [CP/OL].
+% \newblock (2020-10-27)
+% \urlprefix\url{https://ctan.org/pkg/l3kernel}
+%
+% \bibitem{胡伟2017latex2e}
+% 胡伟.
+% \newblock \textit{\LaTeXe 文类和宏包学习手册} [M].
+% \newblock 北京: 清华大学出版社, 2017
+%
+% \bibitem{刘海洋2013latex入门}
+% 刘海洋.
+% \newblock \textit{\LaTeX 入门} [M].
+% \newblock 北京: 电子工业出版社, 2013
+%
+% \bibitem{xmuthesis}
+% Camuse Cao.
+% \newblock \textit{\pkg{xmuthesis}：厦门大学论文模板} [EB/OL].
+% \newblock version 0.4.1,
+% \newblock (2020-10-09)
+% \urlprefix\url{https://github.com/CamuseCao/XMU-thesis}
+%
+% \bibitem{whuthesis}
+% WHUTUG.
+% \newblock \textit{\pkg{whuthesis}：武汉大学论文模板} [EB/OL].
+% \newblock version 0.6d,
+% \newblock (2021-05-20)
+% \urlprefix\url{https://github.com/whutug/whu-thesis}
+% \end{thebibliography}
+%
+% \StopEventually{}
+%<*class>
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\RequirePackage{l3keys2e}
+\ProvidesExplClass{easybook}{2021/07/06}{1.26x}
+  {Typeset Chinese theses or books}
+
+\bool_set_false:N \l__eb_compile_draft_bool
+\bool_set_false:N \l__eb_title_newline_bool
+\bool_set_false:N \l__eb_font_noto_bool
+\bool_set_true:N  \l__eb_page_twoside_bool
+\bool_set_true:N  \l__eb_class_book_bool
+\tl_new:N         \g__eb_config_tl
+\clist_new:N      \g__eb_options_clist
+\cs_new_protected:Npn \eb_put_ctexbook:n #1
+  { \PassOptionsToClass{#1}{ctexbook} }
+
+\keys_define:nn { easybook }
+  {
+    newline .code:n = \bool_set_true:N \l__eb_title_newline_bool,
+    scheme .code:n  = \eb_put_ctexbook:n { scheme = #1 },
+    enmode .meta:n  = { newline,scheme = plain },
+
+    font .choices:nn        =
+      { adobe,fandol,mac,windows,none }
+      { \eb_put_ctexbook:n { fontset = \l_keys_choice_tl } },
+    font/noto .code:n       =
+      {
+        \bool_set_true:N \l__eb_font_noto_bool
+        \eb_put_ctexbook:n { fontset = none }
+      },
+    font/auto .code:n       = { },
+    font/linux .code:n      = \eb_put_ctexbook:n { fontset = ubuntu },
+    font .value_required:n  = true,
+    font .initial:n         = auto,
+
+    paper .choice:,
+    paper .value_required:n = true,
+    paper/unknown .code:n   = \PassOptionsToPackage{#1}{geometry},
+
+    oneside .value_forbidden:n  = true,
+    twoside .value_forbidden:n  = true,
+    oneside .code:n             =
+      {
+        \bool_set_false:N \l__eb_page_twoside_bool
+        \eb_put_ctexbook:n { oneside }
+      },
+    twoside .code:n             =
+      {
+        \bool_set_true:N \l__eb_page_twoside_bool
+        \eb_put_ctexbook:n { twoside }
+      },
+
+    class .choice:,
+    class .value_required:n = true,
+    class/book .code:n      = { },
+    class/article .code:n   =
+      {
+        \bool_set_false:N \l__eb_class_book_bool
+        \keys_set:nn { easybook } { oneside }
+      },
+    book .meta:n            = { class = book },
+    article .meta:n         = { class = article },
+
+    config .tl_set:N      = \g__eb_config_tl,
+    floatpage .bool_set:N = \l__eb_float_page_bool,
+    floatpage .default:n  = true,
+    unknown .code:n       =
+      { \clist_gput_right:NV \g__eb_options_clist \CurrentOption }
+  }
+
+\ProcessKeysOptions{easybook}
+\PassOptionsToPackage{no-math,quiet,CJKmath}{xeCJK}
+\eb_put_ctexbook:n { \g__eb_options_clist }
+\LoadClass[UTF8]{ctexbook}
+
+\RequirePackage{easybase}
+\ctex_at_end:n
+  {
+    \tl_if_empty:NF \g__eb_config_tl
+      { \file_input:n { \g__eb_config_tl } }
+  }
+
+\sys_if_engine_xetex:TF
+  {
+    \cs_new_eq:NN \eb_set_family:nnn \xeCJK_set_family:nnn
+    \cs_new_eq:NN \eb_switch_family:n \xeCJK_switch_family:n
+  }
+  {
+    \cs_new_eq:NN \eb_set_family:nnn \ctex_ltj_set_family:nnn
+    \cs_new_eq:NN \eb_switch_family:n \ctex_ltj_switch_family:n
+  }
+\cs_new_protected:Npn \eb_font_double_engine_set:n #1
+  {
+    \exp_args:Nc \RenewDocumentCommand {set#1font}{O{}mO{}}
+      {\use:c { eb_set#1font:nn } {##2} {##1,##3}}
+  }
+\eb_clist_map_function:nN
+  { main,sans,mono,CJKmain,CJKsans,CJKmono }
+  \eb_font_double_engine_set:n
+
+\cs_new_protected:Npn \eb_setmainfont:nn #1#2
+  { \__fontspec_main_setmainfont:nn {#2} {#1} }
+\cs_new_protected:Npn \eb_setsansfont:nn #1#2
+  { \__fontspec_main_setsansfont:nn {#2} {#1} }
+\cs_new_protected:Npn \eb_setmonofont:nn #1#2
+  { \__fontspec_main_setmonofont:nn {#2} {#1} }
+\cs_new_protected:Npn \eb_setCJKmainfont:nn #1#2
+  { \eb_set_family:nnn { \CJKrmdefault } {#2} {#1} }
+\cs_new_protected:Npn \eb_setCJKsansfont:nn #1#2
+  { \eb_set_family:nnn { \CJKsfdefault } {#2} {#1} }
+\cs_new_protected:Npn \eb_setCJKmonofont:nn #1#2
+  { \eb_set_family:nnn { \CJKttdefault } {#2} {#1} }
+\cs_new_protected:Npn \eb_set_zhfont_songti:nn #1#2
+  { \eb_set_family:nnn { songti } {#2} {#1} }
+\cs_new_protected:Npn \eb_set_zhfont_heiti:nn #1#2
+  { \eb_set_family:nnn { heiti } {#2} {#1} }
+\cs_new_protected:Npn \eb_set_zhfont_kaishu:nn #1#2
+  { \eb_set_family:nnn { kaishu } {#2} {#1} }
+\cs_new_protected:Npn \eb_set_zhfont_fangsong:nn #1#2
+  { \eb_set_family:nnn { fangsong } {#2} {#1} }
+
+\tl_const:Nn \eb_option_zhfont_tl
+  { UprightFont = *,AutoFakeBold = 1.5,ItalicFont = * }
+\cs_new_protected:Npx \eb_setCJKmainfont:n #1
+  { \eb_setCJKmainfont:nn {#1} { \eb_option_zhfont_tl } }
+\cs_new_protected:Npx \eb_setCJKsansfont:n #1
+  { \eb_setCJKsansfont:nn {#1} { \eb_option_zhfont_tl } }
+\cs_new_protected:Npx \eb_setCJKmonofont:n #1
+  { \eb_setCJKmonofont:nn {#1} { \eb_option_zhfont_tl } }
+\cs_new_protected:Npx \eb_set_zhfont_songti:n #1
+  { \eb_set_zhfont_songti:nn {#1} { \eb_option_zhfont_tl } }
+\cs_new_protected:Npx \eb_set_zhfont_heiti:n #1
+  { \eb_set_zhfont_heiti:nn {#1} { \eb_option_zhfont_tl } }
+\cs_new_protected:Npx \eb_set_zhfont_kaishu:n #1
+  { \eb_set_zhfont_kaishu:nn {#1} { \eb_option_zhfont_tl } }
+\cs_new_protected:Npx \eb_set_zhfont_fangsong:n #1
+  { \eb_set_zhfont_fangsong:nn {#1} { \eb_option_zhfont_tl } }
+
+\bool_if:NT \l__eb_font_noto_bool
+  {
+    \eb_setmainfont:nn { NotoSerif }
+      {
+        Extension   = .ttf,
+        UprightFont = *-Regular,
+        BoldFont    = *-Bold,
+        ItalicFont  = *-Italic
+      }
+    \eb_setsansfont:nn { NotoSans }
+      {
+        Extension   = .ttf,
+        UprightFont = *-Regular,
+        BoldFont    = *-Bold,
+        ItalicFont  = *-Italic
+      }
+    \eb_setmonofont:nn { NotoSansMono }
+      {
+        Extension   = .ttf,
+        UprightFont = *-Regular,
+        BoldFont    = *-Bold
+      }
+    \eb_setCJKmainfont:nn { FZShuSong-Z01S }
+      {
+        UprightFont = *,
+        BoldFont    = FZHei-B01S,
+        ItalicFont  = FZKai-Z03S
+      }
+    \eb_setCJKsansfont:n { FZHei-B01S }
+    \eb_setCJKmonofont:n { FZFangSong-Z02S }
+    \eb_set_zhfont_songti:n { FZShuSong-Z01S }
+    \eb_set_zhfont_heiti:n { FZHei-B01S }
+    \eb_set_zhfont_kaishu:n { FZKai-Z03S }
+    \eb_set_zhfont_fangsong:n { FZFangSong-Z02S }
+    \cs_new_protected:Npn \songti { \eb_switch_family:n { songti } }
+    \cs_new_protected:Npn \heiti { \eb_switch_family:n { heiti } }
+    \cs_new_protected:Npn \kaishu { \eb_switch_family:n { kaishu } }
+    \cs_new_protected:Npn \fangsong { \eb_switch_family:n { fangsong } }
+  }
+
+\ctex_set:n
+  {
+    secnumdepth     = 3,
+    tocdepth        = \bool_if:NTF \l__eb_class_book_bool { 1 } { 2 },
+    part            =
+      {
+        pagestyle   = empty,
+        tocline     = \EBNumberLine{#1}#2,
+        format      = \color{ctex@frame}\sffamily\Huge,
+        aftername   =
+          {
+            \bool_if:NTF \l__eb_title_newline_bool
+              { \par\nobreak }
+              { \hspace{\ccwd} }
+          }
+      },
+    chapter         =
+      {
+        % pagestyle   = fancy,
+        format      =
+          {
+            \color{ctex@frame}\sffamily\LARGE
+            \bool_if:NF \l__eb_title_newline_bool { \centering }
+          },
+        aftername   =
+          {
+            \bool_if:NTF \l__eb_title_newline_bool
+              { \par\nobreak\vskip 1.5pc }
+              { \hspace{\ccwd} }
+          },
+        beforeskip  = -1.5ex,
+        afterskip   = 3ex,
+        lotskip     = 0.8pc,
+        lofskip     = 0.8pc
+      },
+    section         =
+      {
+        hang        = true,
+        format      = \color{ctex@frame}\sffamily\Large,
+        aftername   = \hspace{0.5\ccwd},
+        beforeskip  = 1.5ex plus .2ex minus .1ex,
+        afterskip   = 1.5ex plus .2ex minus .1ex
+      },
+    subsection      =
+      {
+        hang        = true,
+        format      = \color{ctex@frame}\sffamily\large,
+        aftername   = \hspace{0.5\ccwd},
+        beforeskip  = 1.3ex plus .2ex minus .1ex,
+        afterskip   = 1.3ex plus .2ex minus .1ex
+      },
+    subsubsection   =
+      {
+        hang        = true,
+        format      = \color{ctex@frame}\sffamily,
+        aftername   = \hspace{0.5\ccwd},
+        beforeskip  = \parskip,
+        afterskip   = \parskip
+      }
+  }
+
+\bool_if:NF \l__eb_title_newline_bool
+  {
+    \ctex_set:n
+      {
+        part/hang     = true,
+        chapter/hang  = true
+      }
+  }
+%</class>
+%<*package>
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\RequirePackage{etoolbox}
+\ProvidesExplPackage{easybase}{2021/07/06}{1.26x}
+  {Typeset Chinese theses or books}
+
+\cs_generate_variant:Nn \eb_ctex_define:nn { nx }
+\cs_generate_variant:Nn \int_to_arabic:n { v }
+\cs_generate_variant:Nn \int_to_alph:n { v }
+\cs_generate_variant:Nn \dim_add:Nn { NV,Nv }
+\cs_generate_variant:Nn \eb_put_hyperref:n { x }
+\cs_generate_variant:Nn \seq_set_from_clist:Nn { No }
+\cs_generate_variant:Nn \int_compare:nNnT { oNnT }
+\cs_generate_variant:Nn \prop_set_from_keyval:Nn { NV }
+\cs_generate_variant:Nn \eb_at_begin_environment:nn { on }
+\cs_new_protected:Npn \eb_ctex_define:nn #1
+  { \keys_define:nn { ctex/#1 } }
+\cs_new_protected:Npn \eb_clist_map_inline:nn #1#2
+  {
+    \seq_set_from_clist:Nn \l_tmpa_seq {#1}
+    \seq_map_inline:Nn \l_tmpa_seq {#2}
+  }
+\cs_new_protected:Npn \eb_clist_map_function:nN #1#2
+  {
+    \seq_set_from_clist:Nn \l_tmpb_seq {#1}
+    \seq_map_function:NN \l_tmpb_seq #2
+  }
+\cs_new_protected:Npn \eb_patch_cmd:Nnn #1#2#3
+  {
+    \ctex_patch_cmd_once:NnnnTF #1 { } {#2} {#3}
+      { } { \ctex_patch_failure:N #1 }
+  }
+\cs_new_protected:Npn \eb_patch_cmd:nnn #1#2#3
+  {
+    \eb_clist_map_inline:nn {#1}
+      { \eb_patch_cmd:Nnn ##1 {#2} {#3} }
+  }
+\cs_new_protected:Npn \eb_preto_cmd:Nn #1#2
+  {
+    \ctex_preto_cmd:NnnTF #1 { } {#2}
+      { } { \ctex_patch_failure:N #1 }
+  }
+\cs_new_protected:Npn \eb_appto_cmd:Nn #1#2
+  {
+    \ctex_appto_cmd:NnnTF #1 { } {#2}
+      { } { \ctex_patch_failure:N #1 }
+  }
+\cs_new_protected:Npn \eb_at_begin_environment:nn #1#2
+  {
+    \eb_clist_map_inline:nn {#1}
+      { \AtBeginEnvironment{##1}{#2} }
+  }
+\cs_new_protected:Npn \eb_match_load_package:n #1
+  {
+    \tl_if_in:nnTF {#1} { [ }
+      {
+        \seq_set_split:Nnn \l_tmpa_seq { [ } {#1}
+        \seq_pop_left:NN \l_tmpa_seq \l_tmpa_tl
+        \IfFileExists{\l_tmpa_tl.sty}
+          {
+            \exp_last_unbraced:Nx \RequirePackage
+              { [\seq_use:Nn \l_tmpa_seq { , } }{\l_tmpa_tl}
+          }{}
+      }
+      { \IfFileExists{#1.sty}{\RequirePackage{#1}}{} }
+  }
+\NewDocumentCommand{\LoadPackage}{O{}m}
+  {
+    \seq_set_split:Nnn \l__eb_package_names_seq { + } {#2}
+    \int_compare:oNnT
+      { \seq_count:N \l__eb_package_names_seq } = { 1 }
+      { \PassOptionsToPackage{#1}{#2} }
+    \seq_map_function:NN
+    \l__eb_package_names_seq \eb_match_load_package:n
+  }
+\cs_new_protected:Npn \eb_at_end_preamble:n
+  { \BeforeBeginEnvironment{document} }
+\cs_gset_eq:NN \PackageWarning \PackageInfo
+
+\bool_if_exist:NF \l__eb_class_book_bool
+  { \bool_set_true:N \l__eb_class_book_bool }
+\bool_if_exist:NF \l__eb_page_twoside_bool
+  { \bool_set_true:N \l__eb_page_twoside_bool }
+\bool_if_exist:NF \l__eb_compile_draft_bool
+  { \bool_set_false:N \l__eb_compile_draft_bool }
+
+\keys_define:nn { easybase }
+  {
+    draft .code:n         = \bool_set_true:N \l__eb_compile_draft_bool,
+    floatpage .bool_set:N = \l__eb_float_page_bool,
+    floatpage .default:n  = true,
+    floatpage .initial:n  = false,
+
+    paper .choice:,
+    paper .value_required:n = true,
+    paper/unknown .code:n   = \PassOptionsToPackage{#1}{geometry},
+    paper .initial:n        = a4paper,
+
+    class .choice:,
+    class .value_required:n = true,
+    class/book .code:n      = { },
+    class/article .code:n   =
+      {
+        \bool_set_false:N \l__eb_class_book_bool
+        \bool_set_false:N \l__eb_page_twoside_bool
+      },
+    class .initial:n        = book,
+    book .meta:n            = { class = #1 },
+    article .meta:n         = { class = #1 }
+  }
+
+\clist_map_inline:nn
+  {
+    { protrusion = false } { microtype },
+    { list = off } { bicaption },
+    { many } { tcolorbox },
+    { xindy } { imakeidx },
+    { upint } { newtxmath },
+    { svgnames } { xcolor }
+  }
+  { \PassOptionsToPackage #1 }
+\ProcessKeysOptions{easybase}
+
+\bool_new:N \l__eb_multoc_bool
+\bool_new:N \l__eb_mark_uppercase_bool
+\bool_new:N \l__eb_chap_counter_withpart_bool
+\tl_new:N   \l__eb_foot_counter_parent_choice_tl
+
+\eb_clist_map_inline:nn
+  {
+    style,subfont,spread,
+    refset,bibset,thmset,
+    geoset,hdrset,tocset
+  }
+  {
+    \ctex_define:n { #1 .meta:nn = { ctex/#1 } {##1} }
+    \cs_new:cpn {#1} ##1 { \keys_set:nn { ctex/#1 } {##1} }
+  }
+\keys_define:nn { } { ctex/link .inherit:n = ctex/refset }
+\cs_set_eq:NN \link \refset
+\cs_if_exist:NF \chapter
+  {
+    \newcounter{chapter}
+    \bool_set_false:N \l__eb_class_book_bool
+    \ctex_define:n { chapter/tocline .code:n = { } }
+  }
+\bool_if:NF \l__eb_class_book_bool
+  {
+    \cs_undefine:N \chapter
+    \ctex_after_end_preamble:n
+      {
+        \NewDocumentCommand{\chapter}{som}
+          {\msg_error:nn { easybase } { no-chapter }}
+      }
+  }
+\msg_new:nnn { easybase } { no-chapter }
+  {
+    Your~document~class~is~in~article~mode. \\
+    The~\string\chapter\space~command~will~not~be~used.
+  }
+\ctex_define:n
+  {
+    link .meta:nn                 = { ctex/link } {#1},
+    lstlistlistingname .tl_set:N  = \listlstlistingname,
+    lstlistingname .tl_set:N      = \lstlistingname
+  }
+\eb_ctex_define:nn { style }
+  {
+    multoc .bool_set:N    = \l__eb_multoc_bool,
+    multoc .default:n     = true,
+    withpart .bool_set:N  = \l__eb_chap_counter_withpart_bool,
+    withpart .default:n   = true,
+    withpart .initial:n   = false,
+    rulewidth .dim_set:N  = \l__eb_rule_width_dim,
+    rulewidth .initial:n  = 0.75pt,
+    uppercase .bool_set:N = \l__eb_mark_uppercase_bool,
+    uppercase .default:n  = true,
+    uppercase .initial:n  = true,
+    figurepath .tl_set:N  = \l_eb_graphics_path_tl,
+
+    footwith .choices:nn        =
+      { part,page,chapter }
+      {
+        \tl_set_eq:NN
+        \l__eb_foot_counter_parent_choice_tl \l_keys_choice_tl
+      },
+    footwith .value_required:n  = true,
+    footwith .initial:n         = chapter,
+
+    figure-con .tl_set:N    = \l__eb_figure_connector_tl,
+    table-con .tl_set:N     = \l__eb_table_connector_tl,
+    listing-con .tl_set:N   = \l__eb_lstlisting_connector_tl,
+    equation-con .tl_set:N  = \l__eb_equation_connector_tl,
+    number-con .meta:n      =
+      {
+        figure-con    = #1,
+        table-con     = #1,
+        listing-con   = #1,
+        equation-con  = #1
+      },
+    number-con .initial:n   = { . }
+  }
+
+\LoadPackage
+  {
+    footmisc[stable,bottom]+
+    spbmark[ctex]+
+    ulem[normalem]+
+    enumitem[shortlabels,inline]+
+    chemformula+siunitx+pifont+
+    amsthm+thmtools+
+    geometry+marginnote+nccfoots+
+    pdfpages+multicol+
+    fancyhdr+titletoc+caption+
+    tabularray+
+    setspace+
+    listings
+  }
+\cs_new_protected:Npn \eb_package_date_check:nn #1#2
+  {
+    \IfPackageAtLeastTF{#1}{#2}
+      {}{\msg_warning:nnn { easybase } { package-old } {#1}}
+  }
+\msg_new:nnn { easybase } { package-old }
+  {
+    Package~#1~has~been~out~of~date. \\
+    Some~problems~or~errors~may~occur \\
+    if~you~continue~compiling. \\\\
+    Please~update~your~macro~package~from~CTAN.
+  }
+\clist_map_inline:nn
+  {
+    { expl3 } { 2020/10/27 },
+    { xparse } { 2020/10/27 },
+    { l3keys2e } { 2020/10/27 },
+    { thmtools } { 2020/08/01 },
+    { caption } { 2020/08/24 },
+    { fancyhdr } { 2021/01/28 },
+    { siunitx } { 2021/06/22 },
+    { tabularray } { 2021/07/01 }
+  }
+  { \eb_package_date_check:nn #1 }
+
+\includepdfset{fitpaper = true}
+\geometry
+  {
+    vmargin         = 2.54cm,
+    hmargin         = 3.17cm,
+    columnsep       = 2\ccwd,
+    headheight      = 2.04cm,
+    headsep         = 0.5cm,
+    footskip        = 0.79cm,
+    footnotesep     = 0.5cm,
+    marginparsep    = 8pt,
+    marginparwidth  = 2.54cm
+  }
+\clist_new:N \g__eb_geometry_clist
+\eb_ctex_define:nn { geoset }
+  {
+    headruleskip .tl_set:N  = \headruleskip,
+    headruleskip .initial:n = 1.5pt,
+    footruleskip .tl_set:N  = \footruleskip,
+    unknown .code:n =
+      {
+        \clist_gput_right:Nx \g__eb_geometry_clist
+          {
+            \l_keys_key_str
+            \tl_if_empty:NF \l_keys_value_tl { = {#1} }
+          }
+      }
+  }
+
+\RenewDocumentCommand{\cleardoublepage}{O{empty}}
+  {
+    \clearpage
+    \bool_if:NT \l__eb_page_twoside_bool
+      {
+        \int_if_odd:nF { \c@page }
+          { \hbox:n { }\thispagestyle{#1}\clearpage }
+      }
+  }
+\DeclareDocumentCommand{\frontmatter}{sO{Roman}}
+  {
+    \IfBooleanTF{#1}{\clearpage}{\cleardoublepage}
+    \boolfalse{@mainmatter}
+    \pagenumbering{#2}
+  }
+\DeclareDocumentCommand{\mainmatter}{s}
+  {
+    \IfBooleanTF{#1}{\clearpage}{\cleardoublepage}
+    \booltrue{@mainmatter}
+    \pagenumbering{arabic}
+  }
+\eb_clist_map_inline:nn
+  { chapter,section,subsection }
+  {
+    \exp_args:Nc \NewDocumentCommand { eb@mark@#1@label@layout }
+      {O{\use:c { CTEXthe#1 }}m}
+      {\tl_set:cn { eb@mark@#1@label } {##1##2}}
+    \cs_new:cpn { eb_mark_#1_number_bool:n } ##1
+      {
+        \tl_if_in:nnTF {##1} { [ }
+          { \use:c { eb@mark@#1@label@layout }##1 }
+          { \use:c { eb@mark@#1@label@layout }{##1} }
+      }
+  }
+
+\tl_new:N \l__eb_fnmark_number_choice_tl
+\cs_gset_eq:NN \easyhead \fancyhead
+\cs_gset_eq:NN \easyfoot \fancyfoot
+\NewDocumentCommand{\markrule}
+  {O{\textwidth}D(){ctex@frame}m>{\SplitArgument{1}{+}}O{}}
+  {\eb_draw_markrule:nnnnn {#1} {#2} {#3} #4}
+\cs_new_protected:Npn \eb_draw_markrule:nnnnn #1#2#3#4#5
+  {
+    \group_begin:
+    \tl_if_empty:nF {#4} { \vspace*{#4} }
+    \color{#2}\hrule\@width #1\@height #3
+    \tl_if_novalue:nF {#5} { \vspace*{#5} }
+    \group_end:
+  }
+\cs_new:Npn \eb_fnmark_counter_pifont:N #1
+  { \ding{\int_eval:n { 171 + #1 }} }
+\cs_new:Npn \eb_fnmark_counter_pifont_neg:N #1
+  { \ding{\int_eval:n { 181 + #1 }} }
+\cs_new:Npn \eb_fnmark_counter_pifont_sans:N #1
+  { \ding{\int_eval:n { 191 + #1 }} }
+\cs_new:Npn \eb_fnmark_counter_pifont_sans_neg:N #1
+  { \ding{\int_eval:n { 201 + #1 }} }
+\cs_new:Npn \eb_footnote_counter:N #1
+  {
+    \str_case:VnF \l__eb_fnmark_number_choice_tl
+      {
+        { plain } { \int_use:N #1 }
+        { pifont } { \eb_fnmark_counter_pifont:N #1 }
+        { pifont* } { \eb_fnmark_counter_pifont_neg:N #1 }
+        { pifont-sans } { \eb_fnmark_counter_pifont_sans:N #1 }
+        { pifont-sans* } { \eb_fnmark_counter_pifont_sans_neg:N #1 }
+      }
+      { \int_use:N #1 }
+  }
+\eb_ctex_define:nn { hdrset }
+  {
+    head-foot .tl_set:N   = \l__eb_fancyhf_content_tl,
+    head-foot .initial:n  =
+      {
+        \bool_if:NTF \l__eb_page_twoside_bool
+          {
+            \easyhead[EC]{\color{ctex@frame}\kaishu\leftmark}
+            \easyhead[OC]{\color{ctex@frame}\kaishu\rightmark}
+            \easyhead[EL,OR]{\color{ctex@frame}\thepage}
+          }
+          {
+            \easyhead[L]{\color{ctex@frame}\kaishu\leftmark}
+            \easyhead[R]{\color{ctex@frame}\thepage}
+          }
+      },
+
+    chap-mark .cs_set:Np    = \eb_fancyhf_chapter_mark:n #1,
+    chap-mark .initial:n    =
+      { \CTEXifname{\eb@mark@chapter@label}{}#1 },
+    sec-mark .cs_set:Np     = \eb_fancyhf_section_mark:n #1,
+    sec-mark .initial:n     =
+      { \CTEXifname{\eb@mark@section@label}{}#1 },
+    subsec-mark .cs_set:Np  = \eb_fancyhf_subsection_mark:n #1,
+    subsec-mark .initial:n  =
+      { \CTEXifname{\eb@mark@subsection@label}{}#1 },
+    chap-label .code:n      = \eb_mark_chapter_number_bool:n {#1},
+    chap-label .initial:n   = \hspace{\ccwd},
+    sec-label .code:n       = \eb_mark_section_number_bool:n {#1},
+    sec-label .initial:n    = \hspace{0.5\ccwd},
+    subsec-label .code:n    = \eb_mark_subsection_number_bool:n {#1},
+    subsec-label .initial:n = \hspace{0.5\ccwd},
+
+    headrule .tl_gset:N     = \headrule,
+    headrule .initial:n     = \markrule{\l__eb_rule_width_dim},
+    footrule .tl_gset:N     = \footrule,
+    footrule .initial:n     = { },
+    footnoterule .tl_gset:N = \footnoterule,
+    footnoterule .initial:n =
+      { \markrule[0.35\textwidth]{\l__eb_rule_width_dim}[+2.6pt] },
+
+    fnmargin .dim_set:N     = \footnotemargin,
+    fnmargin .initial:n     = 0.75\ccwd,
+    fnparskip .tl_set:N     = \hangfootparskip,
+    fnparskip .initial:n    = 0ex,
+    fnparindent .tl_set:N   = \hangfootparindent,
+    fnparindent .initial:n  = 2\ccwd,
+
+    fnhang .bool_set:N      = \l__eb_footnote_hang_bool,
+    fnhang .default:n       = true,
+    fnhang .initial:n       = true,
+    fnmark-pos .tl_set:N    = \l__eb_fnmark_position_tl,
+    fnmark-pos .initial:n   = super,
+    afterfnmark .tl_set:N   = \l__eb_fnmark_after_tl,
+    afterfnmark .initial:n  =
+      { \tl_if_eq:NnF \l__eb_fnmark_position_tl { super } { \space } },
+    fnmark-form .tl_set:N   = \l__eb_fnmark_format_tl,
+
+    fnmark-num .choices:nn        =
+      { plain,pifont,pifont*,pifont-sans,pifont-sans* }
+      {
+        \tl_gset_eq:NN
+        \l__eb_fnmark_number_choice_tl \l_keys_choice_tl
+      },
+    fnmark-num .value_required:n  = true
+  }
+
+\cs_set_eq:NN \eb_mark_uppercase:n \text_uppercase:n
+\cs_set_eq:NN \eb_mark_nouppercase:n \text_titlecase_first:n
+\cs_new:Npn \eb_mark_uppercase_bool:nn #1#2
+  {
+    \bool_if:NTF \l__eb_mark_uppercase_bool
+      { \eb_mark_uppercase:n }
+      { \eb_mark_nouppercase:n }{\use:c { eb_fancyhf_#1_mark:n } {#2}}
+  }
+\cs_new:Npn \eb@level@markdouble #1#2
+  {
+    \markboth
+      {\eb_mark_uppercase_bool:nn {#1} {#2}}
+      {
+        \bool_if:NT \l__eb_page_twoside_bool
+          { \eb_mark_uppercase_bool:nn {#1} {#2} }
+      }
+  }
+\cs_new:Npn \eb@level@markright #1#2
+  { \markright{\eb_mark_uppercase_bool:nn {#1} {#2}} }
+\cs_new:Npn \eb@level@section@mark #1
+  {
+    \bool_if:NTF \l__eb_class_book_bool
+      { \eb@level@markright{section}{#1} }
+      { \eb@level@markdouble{section}{#1} }
+  }
+\cs_new:Npn \eb@level@subsection@mark #1
+  {
+    \bool_if:NF \l__eb_class_book_bool
+      { \eb@level@markright{subsection}{#1} }
+  }
+\ctex_at_end_preamble:n
+  {
+    \exp_args:NV \geometry \g__eb_geometry_clist
+    \fancyhf{}
+    \tl_use:N \l__eb_fancyhf_content_tl
+    \cs_gset_eq:NN \ps@plain \ps@empty
+    \pagestyle{fancy}
+    \cs_gset:Npn \chaptermark #1 { \eb@level@markdouble{chapter}{#1} }
+    \cs_gset_eq:NN \sectionmark \eb@level@section@mark
+    \cs_gset_eq:NN \subsectionmark \eb@level@subsection@mark
+    \bool_if:NT \l__eb_compile_draft_bool
+      {
+        \easyfoot[C]{\color{SlateGray}\sffamily\today}
+        \geometry{showframe}
+      }
+    \tl_if_empty:NF \l_eb_graphics_path_tl
+      { \exp_args:NV \graphicspath \l_eb_graphics_path_tl }
+    \cs_if_exist:NF \kaishu { \cs_gset_eq:NN \kaishu \itshape }
+  }
+
+\eb_at_end_preamble:n
+  {
+    \group_begin:
+    \footnotesize
+    \exp_args:Nx
+    \linespread{\fp_use:N \l__eb_spread_footnote_fp}\selectfont
+    \exp_args:NNNo \group_end:
+    \dim_set:Nn \footnotesep { \dim_use:N \box_ht:N \strutbox }
+    \bool_if:NT \l__eb_chap_counter_withpart_bool
+      { \counterwithin*{chapter}{part} }
+    \str_case:Vn \l__eb_foot_counter_parent_choice_tl
+      {
+        { part } { \counterwithin*{footnote}{part} }
+        { page } { \counterwithin*{footnote}{page} }
+      }
+    \bool_if:NTF \l__eb_footnote_hang_bool
+      { \booltrue{FN@hangfoot} }
+      { \boolfalse{FN@hangfoot} }
+  }
+\eb_patch_cmd:nnn { \@footnotetext,\@mpfootnotetext }
+  { \reset@font }
+  {
+    \linespread{\fp_use:N \l__eb_spread_footnote_fp}
+    \selectfont\ignorespaces
+    \l__eb_subfont_footnote_tl
+  }
+\providecommand{\super}{\textsuperscript}
+\providecommand{\spb@textsuperscript@save}{\textsuperscript}
+\ctex_after_end_preamble:n
+  {
+    \ExplSyntaxOn\char_set_catcode_letter:N \@
+    \eb_patch_cmd:nnn { \H@@footnotemark,\@footnotemark }
+      { \@makefnmark }
+      {
+        \hbox:n
+          {
+            \tl_use:N \l__eb_subfont_footnote_tl
+            \tl_use:N \l__eb_fnmark_format_tl
+              {\super{\@thefnmark}[0pt]}
+          }
+      }
+    \ExplSyntaxOff\char_set_catcode_other:N \@
+  }
+\cs_set:Npn \@makefnmark
+  {
+    \hbox:n
+      {
+        \tl_use:N \l__eb_subfont_footnote_tl
+        \tl_use:N \l__eb_fnmark_format_tl
+          {
+            \tl_if_eq:NnT \l__eb_fnmark_position_tl { super }
+              { \spb@textsuperscript@save }{\@thefnmark}
+            \tl_use:N \l__eb_fnmark_after_tl
+          }
+      }
+  }
+\cs_new:Npn \eb_alph:n #1 { \int_to_alph:v { c@#1 } }
+\cs_set:Npn \thefootnote { \eb_footnote_counter:N \c@footnote }
+\cs_set:Npn \thempfootnote { \eb_alph:n { mpfootnote } }
+
+\contentsuse{lstlisting}{lol}
+\seq_const_from_clist:Nn \c__eb_toc_heading_level_seq
+  { part,chapter,section,subsection,figure,table,lstlisting }
+\cs_new_protected:Npn \eb_toc_assign_keys:n #1
+  {
+    \ctex_define:n { tocset/#1 .meta:nn = { ctex/tocset/#1 } {##1} }
+    \eb_ctex_define:nn { tocset }
+      {
+        #1/format .tl_set:c   = l__eb_toc_#1_format_tl,
+        #1/format+ .code:n    =
+          { \tl_put_right:cn { l__eb_toc_#1_format_tl } {##1} },
+        #1/format~+ .code:n   =
+          { \tl_put_right:cn { l__eb_toc_#1_format_tl } {##1} },
+        #1/indent .dim_set:c  = l__eb_toc_#1_indent_dim,
+        #1/rule .tl_set:c     = l__eb_toc_#1_rule_tl,
+        #1/numsep .tl_set:c   = eb@toc@#1@numsep
+      }
+    \seq_if_in:NnF \c__eb_toc_heading_level_seq { subsection }
+      {
+        \eb_ctex_define:nn { tocset }
+          { #1/belowoffset .dim_set:c = l__eb_toc_#1_offset_dim }
+      }
+    \seq_pop:NN \c__eb_toc_heading_level_seq \l_tmpa_tl
+    \titlecontents{#1}
+      [\dim_use:c { l__eb_toc_#1_indent_dim }]
+      {\tl_use:c { l__eb_toc_#1_format_tl }}
+      {
+        \ifbool{eb@titletoc@hang@fix}
+          {
+            \contentspush
+              {
+                \bool_if:NT \l__eb_toc_number_color_bool
+                  { \color{ctex@toc@number} }
+                \thecontentslabel
+                \hspace{\use:c { eb@toc@#1@numsep }}
+              }
+          }{}
+      }{}
+      {\tl_use:c { l__eb_toc_#1_rule_tl }}
+  }
+\seq_map_function:NN
+\c__eb_toc_heading_level_seq \eb_toc_assign_keys:n
+\ctex_define:n { tocset/list .meta:nn = { ctex/tocset/list } {#1} }
+\eb_clist_map_inline:nn
+  { format,format+,format~+,indent,rule,numsep,belowoffset }
+  {
+    \eb_ctex_define:nn { tocset }
+      {
+        list/#1 .meta:n   =
+          {
+            figure/#1     = ##1,
+            table/#1      = ##1,
+            lstlisting/#1 = ##1
+          }
+      }
+  }
+
+\cs_new:Npn \EBNumberLine #1
+  {
+    \CTEXifname
+      {
+        \use:c { CTEXthe#1 }
+        \hspace{\use:c { eb@toc@#1@numsep }}
+      }{}
+  }
+\newbool{eb@titletoc@hang@fix}
+\eb_ctex_define:nn { tocset }
+  {
+    lolskip .skip_set:N     = \l__eb_toc_lolskip_skip,
+    lolskip .initial:n      = 0.8pc,
+    belowoffset .dim_set:N  = \l__eb_toc_offset_dim,
+    belowoffset .initial:n  =
+      { \bool_if:NTF \l__eb_class_book_bool { -1pc } { -0.35pc } },
+    line-align .bool_set:N  = \l__eb_toc_line_align_bool,
+    line-align .default:n   = true,
+    line-align .initial:n   = true,
+
+    tocline-fig .cs_set:Np  = \eb@labelname@lof #1,
+    tocline-fig .initial:n  =
+      {
+        \figurename\space #1
+        \notbool{eb@titletoc@hang@fix}
+          {\hspace{\eb@toc@figure@numsep}}{}
+      },
+    tocline-tab .cs_set:Np  = \eb@labelname@lot #1,
+    tocline-tab .initial:n  =
+      {
+        \tablename\space #1
+        \notbool{eb@titletoc@hang@fix}
+          {\hspace{\eb@toc@table@numsep}}{}
+      },
+    tocline-lst .tl_set:N   = \eb@labelname@lol,
+    tocline-lst .initial:n  =
+      {
+        \lstlistingname\space\thelstlisting
+        \notbool{eb@titletoc@hang@fix}
+          {\hspace{\eb@toc@lstlisting@numsep}}{}
+      },
+
+    hang .choice:,
+    hang/true .code:n     =
+      {
+        \booltrue{eb@titletoc@hang@fix}
+        \ctex_set:n
+          {
+            chapter/tocline     = \CTEXnumberline{##1}##2,
+            section/tocline     = \CTEXnumberline{##1}##2,
+            subsection/tocline  = \CTEXnumberline{##1}##2
+          }
+      },
+    hang/false .code:n    =
+      {
+        \ctex_set:n
+          {
+            chapter/tocline     = \EBNumberLine{##1}##2,
+            section/tocline     = \EBNumberLine{##1}##2,
+            subsection/tocline  = \EBNumberLine{##1}##2
+          }
+      },
+    hang .default:n       = true,
+    hang .initial:n       = false,
+
+    numsep-all .meta:n    =
+      {
+        part/numsep       = #1,
+        chapter/numsep    = #1,
+        section/numsep    = #1,
+        subsection/numsep = #1,
+        list/numsep       = #1
+      },
+    numsep-all .initial:n = \ccwd,
+    indent-all .meta:n    =
+      {
+        part/indent       = #1,
+        chapter/indent    = #1,
+        section/indent    = #1,
+        subsection/indent = #1,
+        list/indent       = #1
+      },
+    rule-all .meta:n      =
+      {
+        part/rule         = #1,
+        chapter/rule      = #1,
+        section/rule      = #1,
+        subsection/rule   = #1,
+        list/rule         = #1
+      }
+  }
+
+\NewDocumentCommand{\tocrule}{sO{0.7pc}D(){1.2}mO{}}
+  {
+    \normalsize\normalfont
+    \titlerule*[#2]{\scalebox{#3}{#4}}#5
+      {
+        \IfBooleanTF{#1}
+          {\thecontentspage}
+          {
+            \bool_if:NTF \l__eb_toc_line_align_bool
+              { \contentspage }
+              { \thecontentspage }
+          }
+      }
+  }
+\ctex_set:nn { tocset }
+  {
+    part/format       = \addvspace{1pc}\sffamily\large,
+    part/indent       = 0\ccwd,
+    part/rule         = \tocrule{}[\bfseries],
+
+    chapter/format    = \addvspace{1pc}\sffamily\large,
+    chapter/indent    = 0\ccwd,
+    chapter/rule      = \tocrule{$\cdot$}[\bfseries],
+
+    section/format    = \addvspace{0.35pc},
+    section/indent    =
+      { \bool_if:NTF \l__eb_class_book_bool { 1.5\ccwd } { 0\ccwd } },
+    section/rule      = \tocrule{$\cdot$},
+
+    subsection/format = \addvspace{0.35pc},
+    subsection/indent =
+      { \bool_if:NTF \l__eb_class_book_bool { 3.8\ccwd } { 1.4\ccwd } },
+    subsection/rule   = \tocrule{$\cdot$},
+
+    list/format       = \addvspace{0.2pc},
+    list/indent       = 0\ccwd,
+    list/rule         = \tocrule{$\cdot$},
+    list/belowoffset  =
+      { \bool_if:NTF \l__eb_class_book_bool { 0pc } { 0.15pc } }
+  }
+
+\prop_new:N \l__eb_label_name_prop
+\prop_set_from_keyval:Nn \l__eb_label_name_prop
+  {
+    figure  = \eb@labelname@lof,
+    table   = \eb@labelname@lot
+  }
+\cs_gset:Npn \caption@@@addcontentsline #1#2#3#4
+  {
+    \addcontentsline{#1}{#2}
+      {
+        \ifbool{eb@titletoc@hang@fix}{\protect\numberline}{}
+          {\prop_item:Nn \l__eb_label_name_prop {#2}{#3}}#4
+      }
+  }
+\ctex_patch_cmd:Nnn \lst@MakeCaption
+  {
+    \addcontentsline{lol}{lstlisting}
+      {\protect\numberline{\thelstlisting}\lst@@caption}
+  }
+  {
+    \addcontentsline{lol}{lstlisting}
+      {
+        \ifbool{eb@titletoc@hang@fix}{\protect\numberline}{}
+          {\eb@labelname@lol}\lst@@caption
+      }
+  }
+
+\newcounter{bichapter}
+\newcounter{bisection}[bichapter]
+\newcounter{bisubsection}[bisection]
+\cs_set_protected:Npn \eb_current_label:n #1
+  {
+    \tl_set:Nx \@currentlabel
+      {
+        \use:c { p@#1 }
+        \tl_use:c { the#1 }
+      }
+  }
+\NewDocumentCommand{\UseCounter}{soD(){arabic}mmO{.}d()}
+  {
+    \IfBooleanF{#1}{\stepcounter{#4}}
+    \IfValueT{#7}{\setcounter{#4}{#7}}
+    \tl_set:cn { theeb@#4 }
+      {
+        \IfValueT{#2}{\use:c { the#2 }#6}
+        \use:c {#3}{#4}\space #5
+      }
+    \tl_use:c { theeb@#4 }
+    \tl_remove_once:cn { theeb@#4 } {#5}
+    \eb_current_label:n { eb@#4 }
+  }
+\cs_new:Npn \eb_arabic:n #1 { \int_to_arabic:v { c@#1 } }
+\cs_new:Npn \eb_section_counter_prefix:n #1
+  {
+    \int_compare:nNnT { \c@chapter } > { 0 } { \use:c { the#1chapter }. }
+    \eb_arabic:n { #1section }
+  }
+\cs_set:Npn \thebichapter { \eb_arabic:n { bichapter } }
+\cs_set:Npn \thebisection { \eb_section_counter_prefix:n { bi } }
+\cs_set:Npn \thebisubsection { \thebisection.\eb_arabic:n { bisubsection } }
+\cs_set:Npn \thesection { \eb_section_counter_prefix:n { } }
+\eb_clist_map_inline:nn
+  { figure,table,lstlisting,equation }
+  {
+    \cs_set:cpn { the#1 }
+      {
+        \int_compare:nNnT { \c@chapter } > { 0 }
+          {
+            \thechapter
+            \tl_use:c { l__eb_#1_connector_tl }
+          }
+        \eb_arabic:n {#1}
+      }
+  }
+\contentsuse{}{tec}
+\tl_new:N \eb@before@addbitoc@hook
+\NewDocumentCommand{\BeforeAddBitoc}{sm}
+  {
+    \IfBooleanTF{#1}
+      {\tl_gset:Nn \eb@before@addbitoc@hook {#2}}
+      {\tl_gput_right:Nn \eb@before@addbitoc@hook {#2}}
+  }
+\cs_set_protected:Npn \CTEX@addbitocline #1#2
+  {
+    \group_begin:
+    \def\CTEX@prechapter{\CTEX@prebichapter}
+    \def\CTEX@thechapter{\CTEX@bichapter@number}
+    \def\CTEX@postchapter{\CTEX@postbichapter}
+    \eb@before@addbitoc@hook
+    \addcontentsline{tec}{#1}{\use:c { CTEX@#1@tocline }{#1}{#2}}
+    \group_end:
+  }
+\eb_clist_map_inline:nn
+  { chapter,section,subsection }
+  {
+    \exp_args:Nc \NewDocumentCommand { bi#1 }{sO{##3}mm}
+      {
+        \IfBooleanTF{##1}
+          {
+            \use:c {#1}*{\phantomsection ##3}
+            \CTEX@addtocline{#1}{##2}
+            \tl_if_empty:oF {##4} { \CTEX@addbitocline{#1}{##4} }
+            \tl_set:Nn \l__eb__bitoc_mark_title_level_tl {#1}
+            \str_case:nn {#1}
+              {
+                { chapter } { \eb@level@markdouble{chapter}{##2} }
+                { section } { \eb@level@section@mark{##2} }
+                { subsection } { \eb@level@subsection@mark{##2} }
+              }
+          }{
+            \stepcounter{bi#1}
+            \use:c {#1}[##2]{##3}
+            \tl_if_empty:oF {##4} { \CTEX@addbitocline{#1}{##4} }
+          }
+      }
+  }
+\cs_if_exist:NT \chapter
+  {
+    \eb_appto_cmd:Nn \@chapter
+      {
+        \skip_if_eq:nnF { \l__eb_toc_lolskip_skip } { \c_zero_skip }
+          {
+            \addtocontents{lol}
+              {\protect\addvspace{\skip_use:N \l__eb_toc_lolskip_skip}}
+          }
+      }
+  }
+
+\tl_set:Nx \l__eb_toc_type_tl
+  { \bool_if:NTF \l__eb_class_book_bool { chapter } { section } }
+\tl_new:N \eb@bitoc@title
+\keys_define:nn { eb/listoc }
+  {
+    section .code:n     = \tl_set:Nn \l__eb_toc_type_tl { section },
+    chapter .code:n     = { },
+    article .meta:n     = section,
+    book .meta:n        = chapter,
+    multoc .bool_set:N  = \l__eb_multoc_bool,
+    multoc .default:n   = true,
+    multoc .initial:n   = false,
+    title .code:n       = \eb_assign_toc_title:n {#1},
+    columns .int_set:N  = \l__eb_toc_columns_int,
+    columns .initial:n  = 2
+  }
+\bool_if:NTF \l__eb_class_book_bool
+  { \keys_define:nn { } { eb/listoc .inherit:n = ctex/chapter } }
+  { \keys_define:nn { } { eb/listoc .inherit:n = ctex/section } }
+\NewDocumentCommand{\eb_assign_toc_title:n}
+  {>{\SplitArgument{1}{,}}m}
+  {\eb_assign_toc_title_judge:nn #1}
+\cs_new_protected:Npn \eb_assign_toc_title_judge:nn #1#2
+  {
+    \tl_set:Nn \eb@toc@title {#1}
+    \tl_if_novalue:nTF {#2}
+      { \tl_clear:N \eb@bitoc@title }
+      { \tl_set:Nn \eb@bitoc@title {#2} }
+  }
+
+\cs_new_protected:Npn \eb_title_mark_intoc:n #1
+  {
+    \tl_if_eq:NnTF \l__eb_toc_type_tl { chapter }
+      {
+        \bichapter*{#1}{\eb@bitoc@title}
+        \eb@level@markdouble{chapter}{#1}
+      }
+      {
+        \bisection*{#1}{\eb@bitoc@title}
+        \eb@level@section@mark{#1}
+      }
+  }
+\cs_new_protected:Npn \eb_title_mark_notoc:n #1
+  {
+    \tl_if_eq:NnTF \l__eb_toc_type_tl { chapter }
+      {
+        \chapter*{\phantomsection #1}
+        \eb@level@markdouble{chapter}{#1}
+      }
+      {
+        \section*{\phantomsection #1}
+        \eb@level@section@mark{#1}
+      }
+  }
+\cs_new_protected:Npn \eb_title_number_intoc_bool:nn #1#2
+  {
+    \IfBooleanTF{#1}
+      {
+        \tl_if_eq:NnTF \l__eb_toc_type_tl { chapter }
+          { \bichapter{\eb@toc@title}{\eb@bitoc@title} }
+          { \bisection{\eb@toc@title}{\eb@bitoc@title} }
+      }{
+        \IfBooleanTF{#2}
+          {\eb_title_mark_notoc:n { \eb@toc@title }}
+          {\eb_title_mark_intoc:n { \eb@toc@title }}
+      }
+  }
+\cs_new_protected:Npn \eb_biber_title_level_bool:n #1
+  {
+    \bool_if:NTF \l__eb_class_book_bool
+      { \bichapter*{#1}{\l__eb_bib_bitoc_title} }
+      { \bisection*{#1}{\l__eb_bib_bitoc_title} }
+    \eb@level@section@mark{#1}
+  }
+\cs_new_protected:Npn \eb_toc_start_multicol_bool:n #1
+  {
+    \bool_if:NTF \l__eb_multoc_bool
+      {
+        \begin{multicols}{\int_use:N \l__eb_toc_columns_int}
+          \@starttoc{#1}
+        \end{multicols}
+      }
+      { \@starttoc{#1} }
+  }
+\cs_new_protected:Npn \eb_toc_list_parse:nnnnn #1#2#3#4#5
+  {
+    \group_begin:
+    \tl_set_eq:Nc \eb@toc@title { list#4name }
+    \IfValueT{#3}{\keys_set:nn { eb/listoc } {#3}}
+    \eb_title_number_intoc_bool:nn {#2} {#1}
+    \dim_add:Nv
+    \l__eb_toc_offset_dim { l__eb_toc_#4_offset_dim }
+    \vspace*{\dim_use:N \l__eb_toc_offset_dim}
+    \eb_toc_start_multicol_bool:n {#5}
+    \group_end:
+  }
+\clist_map_inline:nn
+  {
+    { figure,lof },
+    { table,lot },
+    { lstlisting,lol }
+  }
+  {
+    \exp_args:Nc \DeclareDocumentCommand
+      { listof\clist_item:nn {#1} { 1 }s }{st+o}
+      {
+        \eb_toc_list_parse:nnnnn {##1} {##2} {##3}
+          { \clist_item:nn {#1} { 1 } }
+          { \clist_item:nn {#1} { 2 } }
+      }
+  }
+\cs_set_eq:NN \listoflistings \listoflstlistings
+\RenewDocumentCommand{\tableofcontents}{t+oD(){}}
+  {
+    \group_begin:
+    \tl_set_eq:NN \eb@toc@title \contentsname
+    \tl_set:Nn \eb@bitoc@title { Contents }
+    \IfValueT{#2}{\keys_set:nn { eb/listoc } {#2}}
+    \eb_title_mark_notoc:n { \eb@toc@title }
+    \vspace*{\dim_use:N \l__eb_toc_offset_dim}
+    \eb_toc_start_multicol_bool:n { toc }#3
+    \IfBooleanT{#1}
+      {
+        \eb_title_mark_notoc:n { \eb@bitoc@title }
+        \vspace*{\dim_use:N \l__eb_toc_offset_dim}
+        \eb_toc_start_multicol_bool:n { tec }
+      }
+    \group_end:
+  }
+
+\ctex_at_end_package:nn { imakeidx }
+  {
+    \makeindex[
+      options   = -M~texindy~-C~utf8,
+      program   = truexindy,
+      columns   = 2,
+      columnsep = 2\ccwd
+      ]
+    \RenewDocumentCommand{\printindex}{st+oD(){\imki@jobname}}
+      {
+        \group_begin:
+        \tl_set_eq:NN \eb@toc@title \indexname
+        \cs_set_eq:NN \imki@indexlevel \use_none:n
+        \setkeys{imkiindex}{noclearpage}
+        \IfValueT{#3}{\keys_set:nn { eb/listoc } {#3}}
+        \tl_set:Nn \imki@indexheaders
+          {
+            \eb_title_number_intoc_bool:nn {#2} {#1}
+            \cs_set_eq:NN \thispagestyle \use_none:n
+            \cs_undefine:N \imki@firstpagestyle
+          }
+        \imki@putindex{#4}
+        \group_end:
+      }
+  }
+
+\eb_ctex_define:nn { chapter }
+  {
+    biname .code:n      =
+      { \ctex_assign_heading_name:nn { bichapter } {#1} },
+    biname .initial:n   = Chapter\space,
+    binmuber .tl_set:N  = \CTEX@bichapter@number,
+    binmuber .initial:n = \arabic{chapter}
+  }
+\cs_new_protected:Npn \eb_counter_zero:n #1
+  { \eb_clist_map_inline:nn {#1} { \setcounter{##1}{0} } }
+\RenewDocumentCommand{\appendix}
+  {O{Appendix\space}D(){\Alph{chapter}}}
+  {
+    \ctex_assign_heading_name:nn { biappendix } {#1}
+    \int_compare:nNnTF { \c@chapter } > { 0 }
+      {
+        \ExplSyntaxOn\char_set_catcode_letter:N \@
+        \eb_patch_cmd:Nnn \CTEX@addbitocline
+          {
+            \def\CTEX@prechapter{\CTEX@prebichapter}
+            \def\CTEX@thechapter{\CTEX@bichapter@number}
+            \def\CTEX@postchapter{\CTEX@postbichapter}
+          }
+          {
+            \def\CTEX@prechapter{\CTEX@prebiappendix}
+            \def\CTEX@thechapter{#2}
+            \def\CTEX@postchapter{\CTEX@postbiappendix}
+          }
+        \ExplSyntaxOff\char_set_catcode_other:N \@
+        \gdef\thechapter{\@Alph\c@chapter}
+        \gdef\thebichapter{\@Alph\c@bichapter}
+        \gdef\CTEX@prechapter{\CTEX@preappendix}
+        \gdef\CTEX@thechapter{\CTEX@appendix@number}
+        \gdef\CTEX@postchapter{\CTEX@postappendix}
+        \gdef\CTEX@chapter@numbering{\CTEX@appendix@numbering}
+        \eb_counter_zero:n { chapter,section,bichapter,bisection }
+      }
+      {
+        \gdef\thesection{\@Alph\c@section}
+        \gdef\thebisection{\@Alph\c@bisection}
+        \gdef\CTEX@presection{\CTEX@preappendix}
+        \gdef\CTEX@thesection{\CTEX@appendix@number}
+        \gdef\CTEX@postsection{\CTEX@postappendix}
+        \gdef\CTEX@section@numbering{\CTEX@appendix@numbering}
+        \ctex_set:nn { appendix } { number = \@Alph\c@section,name = { } }
+        \eb_counter_zero:n { section,subsection,bisection,bisubsection }
+      }
+  }
+
+\tl_new:N \l__eb_subfont_table_tl
+\tl_new:N \l__eb_subfont_figure_tl
+\tl_new:N \l__eb_subfont_listing_tl
+\tl_new:N \l__eb_subfont_footnote_tl
+
+\eb_ctex_define:nn { subfont }
+  {
+    table-cap .tl_set:N     = \l__eb_subfont_table_tl,
+    table-cap .initial:n    = \sffamily\small,
+    figure-cap .tl_set:N    = \l__eb_subfont_figure_tl,
+    figure-cap .initial:n   = \sffamily\small,
+    listing-cap .tl_set:N   = \l__eb_subfont_listing_tl,
+    listing-cap .initial:n  = \sffamily\small,
+    footnote .tl_set:N      = \l__eb_subfont_footnote_tl,
+    footnote .initial:n     = \rmfamily,
+    marginpar .tl_set:N     = \marginfont,
+    marginpar .initial:n    = \rmfamily\footnotesize,
+
+    math .choices:nn        =
+      {
+        noto,notosans,times,scholax,stix,
+        charter,ebgaramond,libertine,none
+      }
+      {
+        \tl_gset_eq:NN
+        \l__eb_subfont_math_choice_tl \l_keys_choice_tl
+      },
+    math .value_required:n  = true,
+    math .initial:n         = noto
+  }
+
+\cs_new_protected:Npn \eb_put_newtxmath:n #1
+  { \PassOptionsToPackage{#1}{newtxmath} }
+\eb_at_end_preamble:n
+  {
+    \str_case:VnT \l__eb_subfont_math_choice_tl
+      {
+        { noto } { \eb_put_newtxmath:n { noto } }
+        { notosans } { \eb_put_newtxmath:n { notosans } }
+        { ebgaramond } { \eb_put_newtxmath:n { ebgaramond } }
+        { times } { \eb_put_newtxmath:n { noOT1 } }
+        { libertine } { \eb_put_newtxmath:n { libertine,noOT1 } }
+        { stix } { \eb_put_newtxmath:n { stix2,noOT1 } }
+        { scholax } { \eb_put_newtxmath:n { nc,noOT1 } }
+        { charter } { \eb_put_newtxmath:n { charter,noOT1 } }
+      }
+      { \LoadPackage{newtxmath+bm} }
+  }
+
+\fp_new:N \l__eb_spread_line_fp
+\fp_new:N \l__eb_spread_table_fp
+\fp_new:N \l__eb_spread_math_fp
+\fp_new:N \l__eb_spread_caption_fp
+\fp_new:N \l__eb_spread_footnote_fp
+
+\eb_ctex_define:nn { spread }
+  {
+    line .fp_set:N      = \l__eb_spread_line_fp,
+    line .initial:n     = 1.3,
+    table .fp_set:N     = \l__eb_spread_table_fp,
+    table .initial:n    = 1.05,
+    math .fp_set:N      = \l__eb_spread_math_fp,
+    math .initial:n     = 1.05,
+    caption .fp_set:N   = \l__eb_spread_caption_fp,
+    caption .initial:n  = 1,
+    footnote .fp_set:N  = \l__eb_spread_footnote_fp,
+    footnote .initial:n = 1,
+    spread-all .meta:n  =
+      {
+        line      = #1,
+        table     = #1,
+        math      = #1,
+        caption   = #1,
+        footnote  = #1
+      }
+  }
+
+\DeclareCaptionLabelSeparator{ccwd}{\hspace{\ccwd}}
+\DeclareCaptionLabelFormat{parens}{\bothIfFirst{#1}{~}(#2)}
+\DeclareCaptionFont{eb@table@font}{\l__eb_subfont_table_tl}
+\DeclareCaptionFont{eb@figure@font}{\l__eb_subfont_figure_tl}
+\DeclareCaptionFont{eb@listing@font}{\l__eb_subfont_listing_tl}
+\captionsetup
+  {
+    format          = hang,
+    font = {stretch = \fp_use:N \l__eb_spread_caption_fp},
+    labelfont       = {color = ctex@frame},
+    labelsep        = ccwd,
+    singlelinecheck = true,
+    belowskip       = 0pt,
+    aboveskip       = 10pt
+  }
+\captionsetup[table]{font += eb@table@font}
+\captionsetup[figure]{font += eb@figure@font}
+\captionsetup[lstlisting]{font += eb@listing@font}
+\captionsetup[subfigure]
+  {
+    labelformat = parens,
+    font+       = eb@figure@font,
+    belowskip   = 2pt,
+    aboveskip   = 6pt
+  }
+\ctex_at_end_package:nn { bicaption }
+  {
+    \captionsetup[figure][bi-second]{name = Figure}
+    \captionsetup[table][bi-second]{name = Table}
+  }
+\IfPackageAtLeastTF{tabularray}{2021/07/01}
+  {
+    \SetTblrInner
+      {
+        rows    = {abovesep = 4pt,belowsep = 2pt},
+        stretch = \fp_use:N \l__eb_spread_table_fp
+      }
+    \NewTableCommand{\toprule}[1][1pt]{\hline[#1]}
+    \NewTableCommand{\midrule}[1][0.5pt]{\hline[#1]}
+    \NewTableCommand{\bottomrule}[1][1pt]{\hline[#1]}
+  }{}
+\eb_at_begin_environment:nn { tabular,tabularx }
+  {
+    \exp_args:Nx \linespread { \fp_use:N \l__eb_spread_table_fp }
+    \selectfont\ignorespaces
+  }
+\ctex_after_end_preamble:n
+  {
+    \exp_args:Nx \linespread { \fp_use:N \l__eb_spread_line_fp }
+    \selectfont\ignorespaces
+  }
+
+\cs_new_protected:Npn \eb_float_proportion_set:nn #1#2
+  { \tl_gset:cn { #1fraction } {#2} }
+\bool_if:NF \l__eb_float_page_bool
+  {
+    \clist_map_inline:nn
+      {
+        { text } { 0.1 },
+        { top } { 0.9 },
+        { bottom } { 0.9 },
+        { floatpage } {0.9 },
+        { dbltop } { 0.9 },
+        { dblfloatpage } { 0.9 }
+      }
+      { \eb_float_proportion_set:nn #1 }
+  }
+\skip_set:Nn \parskip { 0pt plus 2pt minus 1pt }
+\skip_set:Nn \intextsep { 14pt plus 2pt minus 2pt }
+\skip_set:Nn \textfloatsep { 16pt plus 2pt minus 4pt }
+\skip_set:Nn \multicolsep { 12pt plus 4pt minus 3pt }
+\skip_set:Nn \dbltextfloatsep { 16pt plus 2pt minus 4pt }
+\int_gset:Nn \vbadness { 10000 }
+\int_gset:Nn \hbadness { 10000 }
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{4}
+\setcounter{totalnumber}{8}
+\allowdisplaybreaks[4]
+\tl_gset:Nn \ULthickness { \l__eb_rule_width_dim }
+\DeclareGraphicsExtensions{.pdf,.png,.jpg,.eps,.tif}
+
+\cs_new_protected:Npn \eb_enumitem_label_set:nn #1#2
+  { \SetEnumitemValue{label}{#1}{\color{ctex@emph}#2} }
+\clist_map_inline:nn
+  {
+    { bullet } { \textbullet },
+    { endash } { \normalfont\bfseries\textendash },
+    { asterisk } { \textasteriskcentered },
+    { arabic } { \arabic*. },
+    { alph } { (\alph*) },
+    { roman } { \roman*. },
+    { outline } { \upshape\ding{111} }
+  }
+  { \eb_enumitem_label_set:nn #1 }
+\SetEnumitemValue{font}{sf}{\color{ctex@emph}\normalfont\sffamily}
+\SetEnumitemValue{ref}{enumii}{\arabic{enumi}.\alph*}
+\SetEnumitemValue{ref}{enumiii}{\arabic{enumi}.\alph{enumii}.\roman*}
+\setlist
+  {
+    labelsep = 0.75\ccwd,listparindent = 2\ccwd,leftmargin = *,
+    itemsep = 0.75ex plus .1ex,topsep = 0.75ex plus .1ex,
+    partopsep = 0ex,parsep = 0ex
+  }
+\newlist{eb@outline@list}{itemize}{1}
+\setlist[eb@outline@list]{label = outline,itemsep = 0.5ex plus .1ex}
+\setlist[itemize,1]{label = bullet}
+\setlist[itemize,2]{label = endash}
+\setlist[itemize,3]{label = asterisk}
+\setlist[enumerate,1]{label = arabic,ref = \arabic*}
+\setlist[enumerate,2]{label = alph,ref = enumii}
+\setlist[enumerate,3]{label = roman,ref = enumiii,labelwidth = *}
+\setlist[description]{font = sf,labelwidth = *,leftmargin = 2\ccwd}
+
+\cs_new_protected:Npn \eb_thmname_set:nnn #1#2#3
+  {
+    \tl_if_eq:NnTF \l__ctex_scheme_tl { chinese }
+      { \tl_const:cn { c__eb_name_#1_tl } {#3} }
+      { \tl_const:cn { c__eb_name_#1_tl } {#2} }
+  }
+\NewDocumentCommand{\DeclareTheorem}
+  {mO{\text_titlecase_first:n {#1}}mD(){tc-theorem}O{}}
+  {
+    \ctex_at_end_preamble:n
+      {
+        \eb_thmname_set:nnn {#1} {#2} {#3}
+        \exp_args:No \declaretheorem@i
+          {
+            name  = \tl_use:c { c__eb_name_#1_tl },
+            style = easy-theorem,#5
+          }{#1}[]
+        \bool_if:NT \l__eb_thmbox_bool
+          {
+            \@ifpackageloaded{tcolorbox}
+              {\tcolorboxenvironment{#1}{#4}}{}
+          }
+        \labelformat{#1}{\tl_use:c { c__eb_name_#1_tl }~##1}
+      }
+  }
+\cs_set_eq:NN \EBNewTheorem \DeclareTheorem
+\cs_set_eq:NN \eb@declare@theorem@save \declaretheorem
+\RenewDocumentCommand{\declaretheorem}{O{}m}
+  {\AfterPreamble{\eb@declare@theorem@save[#1]{#2}}}
+\cs_set_eq:NN \newtheorem \declaretheorem
+\prop_new:N \l__eb_thmtools_entry_prop
+\clist_const:Nn \c__eb_thmtools_entry_clist
+  {
+    spaceabove    = \l__eb_thm_spaceabove_tl,
+    spacebelow    = \l__eb_thm_spacebelow_tl,
+    headindent    = \l__eb_thm_headindent_tl,
+    headfont      = \l__eb_thm_headfont_tl,
+    notefont      = \l__eb_thm_notefont_tl,
+    notebraces    = \l__eb_thm_notebraces_tl,
+    bodyfont      = \l__eb_thm_bodyfont_tl,
+    headpunct     = \l__eb_thm_headpunct_tl,
+    postheadspace = \l__eb_thm_postheadspace_tl,
+    within        = \l__eb_thm_within_tl,
+    headformat    = \l__eb_thm_headformat_tl
+  }
+\prop_set_from_keyval:NV
+\l__eb_thmtools_entry_prop \c__eb_thmtools_entry_clist
+\prop_map_inline:Nn \l__eb_thmtools_entry_prop
+  { \eb_ctex_define:nn { thmset } { #1 .tl_set:N = #2 } }
+\NewDocumentCommand{\eb_assign_tag_brackets:n}
+  {>{\SplitArgument{1}{,}}m}
+  {\eb_assign_tag_brackets_pos:nn #1}
+\cs_new_protected:Npn \eb_assign_tag_brackets_pos:nn #1#2
+  {
+    \tl_set:Nn \eb@tag@brackets@left {#1}
+    \tl_set:Nn \eb@tag@brackets@right {#2}
+  }
+\cs_gset:Npn \tagform@ #1
+  {
+    \maketag@@@
+      {
+        \color{ctex@emph}
+        \eb@tag@brackets@left
+        \ignorespaces #1\unskip\@@italiccorr
+        \eb@tag@brackets@right
+      }
+  }
+\eb_ctex_define:nn { thmset }
+  {
+    thmbox .bool_set:N  = \l__eb_thmbox_bool,
+    thmbox .default:n   = true,
+    thmbox .initial:n   = false,
+    brackets .code:n    = \eb_assign_tag_brackets:n {#1},
+    brackets .initial:n = { (,) }
+  }
+\ctex_set:nn { thmset }
+  {
+    spaceabove    = 0.75ex plus .1ex,
+    spacebelow    = 0.75ex plus .1ex,
+    headindent    = 0\ccwd,
+    headfont      = \color{ctex@emph}\sffamily,
+    postheadspace = \ccwd,
+    within        = \bool_if:NT \l__eb_class_book_bool { chapter },
+    headformat    = \NAME\space\NUMBER\NOTE
+  }
+\eb_at_end_preamble:n
+  {
+    \exp_last_unbraced:NNV
+    \declaretheoremstyle[\c__eb_thmtools_entry_clist]{easy-theorem}
+    \eb_thmname_set:nnn { exercise } { Exercise } { 练习 }
+    \cs_undefine:N \proof
+    \clist_map_inline:nn
+      {
+        { lemma } { 引理 },
+        { example } { 例 },
+        { theorem } { 定理 },
+        { corollary } { 推论 },
+        { definition } { 定义 },
+        { proposition } { 性质 },
+        { remark } { 注 } [ numbered = no ],
+        { { proof } { 证明 } [ numbered = no,qed = \qedsymbol ] }
+      }
+      { \DeclareTheorem #1 }
+  }
+
+\setchemformula
+  {
+    math-scripts      = false,
+    charge-hshift     = 0.25\ccwd,
+    subscript-vshift  = -0.2ex
+  }
+\IfPackageAtLeastTF{siunitx}{2021/06/22}
+  {
+    \sisetup
+      {
+        mode = match,
+        table-parse-only,
+        text-family-to-math,
+        text-series-to-math,
+        reset-text-family   = false,
+        reset-text-series   = false,
+        reset-text-shape    = false,
+        range-phrase  = \ensuremath{\sim},
+        range-units   = single,
+        group-digits  = none
+      }
+  }{}
+\eb_at_begin_environment:nn
+  {
+    array,matrix,pmatrix,bmatrix,Bmatrix,vmatrix,Vmatrix,
+    matrix*,pmatrix*,bmatrix*,Bmatrix*,vmatrix*,Vmatrix*,
+    cases,cases*,dcases,dcases*,rcases,rcases*,drcases,drcases*,
+    aligned,alignedat,gathered,multlined,lgathered,rgathered
+  }
+  {
+    \linespread{\fp_use:N \l__eb_spread_math_fp}
+    \selectfont\ignorespaces
+  }
+\eb_patch_cmd:nnn { \start@gather,\start@align,\start@multline }
+  { \collect@body }
+  {
+    \linespread{\fp_use:N \l__eb_spread_math_fp}
+    \selectfont\collect@body
+  }
+\eb_patch_cmd:Nnn \gather@split
+  { \spread@equation }
+  {
+    \linespread{\fp_use:N \l__eb_spread_math_fp}
+    \selectfont\spread@equation
+  }
+\ctex_after_end_preamble:n
+  {
+    \skip_set:Nn \abovedisplayskip { 5pt plus 1pt minus 1pt }
+    \skip_set:Nn \belowdisplayskip { 5pt plus 1pt minus 1pt }
+    \skip_set:Nn \abovedisplayshortskip { 0pt }
+    \skip_set:Nn \belowdisplayshortskip { 5pt plus 1pt minus 1pt }
+  }
+\ctex_at_end_package:nn { unicode-math }
+  { \msg_redirect_module:nnn { unicode-math } { warning } { info } }
+
+\keys_define:nn { eb/exercise }
+  {
+    color .tl_set:N   = \eb@tc@background@color,
+    color .initial:n  = LightSkyBlue,
+    number .tl_set:N  = \eb@tc@list@number,
+    number .initial:n = { 1. },
+    title .tl_set:N   = \eb@tc@exercise@title,
+    title .initial:n  = \c__eb_name_exercise_tl,
+    numsep .dim_set:N = \eb@toc@exercise@numsep,
+    numsep .initial:n = 0.5\ccwd,
+    label .tl_set:N   = \eb@tc@exercise@label
+  }
+\cs_new_protected:Npn \setexercise #1
+  { \keys_set:nn { eb/exercise } {#1} }
+\ctex_at_end_package:nn { tcolorbox }
+  {
+    \eb_package_date_check:nn { tcolorbox } { 2020/10/09 }
+    \file_if_exist_input:n { eb-tcolorbox.cfg }
+  }
+
+\bool_set_true:N \l__eb_backend_bibtex_bool
+\tl_new:N \l__eb_bib_style_tl
+\tl_new:N \l__eb_bib_otherstyle_tl
+\tl_new:N \l__eb_bib_citestyle_tl
+\clist_new:N \l__eb_bib_datafile_clist
+
+\eb_ctex_define:nn { bibset }
+  {
+    backend .choice:,
+    backend .value_required:n = true,
+    backend/bibtex .code:n    = { },
+    backend/biblatex .code:n  =
+      { \bool_set_false:N \l__eb_backend_bibtex_bool },
+
+    bib-style .choice:,
+    bib-style .value_required:n   = true,
+    bib-style/numerical .code:n   =
+      {
+        \tl_set:Nn \l__eb_bib_style_tl {#1}
+        \tl_clear:N \l__eb_bib_otherstyle_tl
+      },
+    bib-style/authoryear .code:n  =
+      {
+        \tl_set:Nn \l__eb_bib_style_tl {#1}
+        \tl_clear:N \l__eb_bib_otherstyle_tl
+      },
+    bib-style/unknown .code:n     =
+      { \tl_set_eq:NN \l__eb_bib_otherstyle_tl \l_keys_value_tl },
+    bib-style .initial:n          = numerical,
+
+    cite-style .code:n      =
+      { \tl_set:Nn \l__eb_bib_citestyle_tl {#1} },
+    datafile .clist_set:N   = \l__eb_bib_datafile_clist,
+    bitoc-title .tl_set:N   = \l__eb_bib_bitoc_title,
+    bitoc-title .initial:n  = Reference
+  }
+
+\cs_new_protected:Npn \BibtexPostset
+  {
+    \tl_if_empty:NTF \l__eb_bib_otherstyle_tl
+      {
+        \tl_if_eq:NnT \l__eb_bib_style_tl { numerical }
+          {
+            \bibliographystyle{gbt7714-numerical}
+            \setcitestyle{comma,square,super}
+          }
+        \tl_if_eq:NnT \l__eb_bib_style_tl { authoryear }
+          { \bibliographystyle{gbt7714-author-year} }
+        \cs_set_eq:NN \cite \citep
+      }
+      { \exp_args:NV \bibliographystyle \l__eb_bib_otherstyle_tl }
+    \tl_if_empty:NF \l__eb_bib_citestyle_tl
+      { \exp_args:NV \setcitestyle \l__eb_bib_citestyle_tl }
+    \skip_zero:N \bibsep
+    \AtEndEnvironment{thebibliography}
+      {\bool_if:NT \l__eb_multoc_bool { \end{multicols} }}
+    \NewDocumentCommand{\printbibliography}{st+o}
+      {
+        \group_begin:
+        \tl_set_eq:NN \eb@toc@title \bibname
+        \IfValueT{##3}{ \keys_set:nn { eb/listoc } {##3} }
+        \tl_set:Nn \bibsection
+          {
+            \eb_title_number_intoc_bool:nn {##2} {##1}
+            \bool_if:NT \l__eb_multoc_bool
+              { \begin{multicols}{\int_use:N \l__eb_toc_columns_int} }
+          }
+        \exp_args:NV \bibliography \l__eb_bib_datafile_clist
+        \group_end:
+      }
+  }
+\cs_new_protected:Npn \eb_put_biblatex:n #1
+  { \PassOptionsToPackage{#1}{biblatex} }
+\cs_new_protected:Npn \BiblatexPreset
+  {
+    \tl_if_empty:NTF \l__eb_bib_otherstyle_tl
+      {
+        \tl_if_eq:NnT \l__eb_bib_style_tl { numerical }
+          { \eb_put_biblatex:n { style = gb7714-2015 } }
+        \tl_if_eq:NnT \l__eb_bib_style_tl { authoryear }
+          { \eb_put_biblatex:n { style = gb7714-2015ay } }
+      }
+      { \eb_put_biblatex:n { style = \l__eb_bib_otherstyle_tl } }
+    \tl_if_empty:NF \l__eb_bib_citestyle_tl
+      { \eb_put_biblatex:n { citestyle = \l__eb_bib_citestyle_tl } }
+    \eb_put_biblatex:n { backend = biber }
+  }
+\cs_new_protected:Npn \BiblatexPostset
+  {
+    \clist_map_function:NN \l__eb_bib_datafile_clist \addbibresource
+    \tl_gset:Nn \blx@default@theheading { bibintoc }
+    \defbibheading{bibintoc}[\bibname]
+      {\eb_biber_title_level_bool:n {##1}}
+    \skip_zero:N \bibitemsep
+  }
+\eb_at_end_preamble:n
+  {
+    \clist_if_empty:NF \l__eb_bib_datafile_clist
+      {
+        \bool_if:NTF \l__eb_backend_bibtex_bool
+          {
+            \LoadPackage[sort&compress]{natbib}
+            \BibtexPostset
+          }
+          {
+            \BiblatexPreset
+            \LoadPackage{biblatex}
+            \BiblatexPostset
+          }
+      }
+  }
+
+\lstdefinestyle{easy-listings}
+  {
+    language      = [LaTeX]TeX,
+    texcsstyle    =
+      {
+        *\lst@ifdisplaystyle
+          \bfseries\color{ctex@verb}
+        \else
+          \color{ctex@verb}
+        \fi
+      },
+    basicstyle    =
+      {
+        \ttfamily\lst@ifdisplaystyle
+          \small
+        \else
+          \color{ctex@verb}
+        \fi
+      },
+    keywordstyle  =
+      {
+        \lst@ifdisplaystyle
+          \bfseries\color{ctex@verb}
+        \else
+          \color{ctex@verb}
+        \fi
+      },
+    framexleftmargin  = 0pt,
+    framexrightmargin = 0pt,
+    xleftmargin       = 3pt,
+    xrightmargin      = 3pt,
+    numbersep         = 10pt,
+    framesep          = 3pt,
+    frame             = single,
+    rulecolor         = \color{ctex@frame},
+    commentstyle      = \color{SlateGray},
+    emphstyle         = \color{ctex@emph},
+    % emph              = {},
+    morekeywords      =
+      {
+        includegraphics,setmainfont,setsansfont,setmonofont,setCJKmainfont,setCJKsansfont,setCJKmonofont,setCJKfamilyfont,RequirePackage
+      }
+  }
+\lstset
+  {
+    style         = easy-listings,
+    breaklines    = true,
+    resetmargins  = true,
+    % numbers       = left,
+    numberstyle   = \footnotesize,
+    aboveskip     = 1.5ex plus .2ex minus .1ex,
+    belowskip     = 0.55ex plus .2ex minus .1ex,
+    keepspaces    = true,
+    framerule     = \l__eb_rule_width_dim,
+    columns       = flexible,
+    abovecaptionskip  = -1ex,
+    belowcaptionskip  = 1.5ex
+  }
+\lstloadlanguages{C,C++,Java,Python,Matlab}
+
+\clist_new:N \l__eb_hyperref_clist
+\cs_new_protected:Npn \eb_put_hyperref:n #1
+  { \clist_put_right:Nn \l__eb_hyperref_clist {#1} }
+\cs_new_protected:Npn \eb_define_linkcolor:nnn #1#2#3
+  { \definecolorset{HTML}{ctex@}{}{link,#1;url,#2;cite,#3} }
+\cs_new_protected:Npn \eb_define_themecolor:nnn #1#2#3
+  { \definecolorset{HTML}{ctex@}{}{frame,#1;emph,#2;verb,#3} }
+\cs_new_protected:Npn \eb_define_linkcolor:n #1
+  { \definecolorset{HTML}{ctex@}{}{link,#1;url,#1;cite,#1} }
+\cs_new_protected:Npn \eb_define_themecolor:n #1
+  { \definecolorset{HTML}{ctex@}{}{frame,#1;emph,#1;verb,#1} }
+\cs_new_protected:Npn \DeclareLinkColor #1
+  { \eb_ctex_define:nx { refset } { \eb_linkcolor_set:n {#1} } }
+\cs_new_protected:Npn \DeclareThemeColor #1
+  { \eb_ctex_define:nx { style } { \eb_themecolor_set:n {#1} } }
+\cs_new:Npn \eb_linkcolor_set:n #1
+  {
+    linkcolor/\clist_item:nn {#1} { 1 } .code:n =
+      {
+        \eb_define_linkcolor:nnn
+          { \clist_item:nn {#1} { 2 } }
+          { \clist_item:nn {#1} { 3 } }
+          { \clist_item:nn {#1} { 4 } }
+        \eb_put_hyperref:n
+          {
+            linkcolor = ctex@link,linkbordercolor = ctex@link,
+            urlcolor  = ctex@url,urlbordercolor   = ctex@url,
+            citecolor = ctex@cite,citebordercolor = ctex@cite
+          }
+      },
+  }
+\cs_new:Npn \eb_themecolor_set:n #1
+  {
+    color/\clist_item:nn {#1} {1} .code:n =
+      {
+        \eb_define_themecolor:nnn
+          { \clist_item:nn {#1} { 2 } }
+          { \clist_item:nn {#1} { 3 } }
+          { \clist_item:nn {#1} { 4 } }
+      },
+  }
+
+\bool_set_false:N \l__eb_toc_number_color_bool
+\eb_ctex_define:nn { refset }
+  {
+    linktype .choice:,
+    linktype .value_required:n  = true,
+    linktype/edge .code:n       = { },
+    linktype/none .code:n       = \eb_put_hyperref:n { hidelinks },
+    linktype/various .code:n    =
+      {
+        \bool_set_true:N \l__eb_toc_number_color_bool
+        \eb_put_hyperref:n { colorlinks }
+      },
+
+    linktoc .choice:,
+    linktoc/unknown .code:n =
+      {
+        \eb_put_hyperref:n { linktoc = #1 }
+        \clist_map_inline:nn { page,none }
+          {
+            \tl_if_eq:NnT \l_keys_value_tl {##1}
+              { \clist_map_break:n { \colorlet{ctex@toc@number}{black} } }
+          }
+      },
+    linktoc .default:n      = all,
+    linktoc .initial:n      = all,
+    unknown .code:n         =
+      {
+        \eb_put_hyperref:x
+          {
+            \l_keys_key_str
+            \tl_if_empty:NF \l_keys_value_tl { = {#1} }
+          }
+      }
+  }
+\eb_ctex_define:nx { refset }
+  {
+    linkcolor .choice:,
+    \clist_map_function:nN
+      {
+        { fresh,     62d71f,0000B2,005752 },
+        { cutepink,  ff69b4,9d5196,57b5e5 },
+        { navyblue,  000080,004986,eb6877 },
+        { crimson,   dc143c,00c1c9,afcd20 }
+      }
+      \eb_linkcolor_set:n
+    linkcolor .default:n  = navyblue,
+    linkcolor .initial:n  = navyblue,
+    linkcol-all .code:n   =
+      { \eb_define_linkcolor:n { \exp_not:n {#1} } }
+  }
+\colorlet{ctex@toc@number}{ctex@link}
+\eb_ctex_define:nx { style }
+  {
+    color .choice:,
+    color .value_required:n = true,
+    \clist_map_function:nN
+      {
+        { none,      000000,000000,000000 },
+        { seaside,   4169e1,708090,9932cc },
+        { energy,    f39800,00a0e9,893895 },
+        { cyberpunk, 601986,eb6877,a4005b }
+      }
+      \eb_themecolor_set:n
+    color .initial:n  = none,
+    color-all .code:n =
+      { \eb_define_themecolor:n { \exp_not:n {#1} } }
+  }
+
+\cs_new:Npn \eb_allow_urlbreak:
+  {
+    \cs_new:Npn \eb_add_urlbreak_points:
+      { \tl_map_function:NN \c__eb_urlbreak_points_tl \do }
+    \eb_appto_cmd:Nn \UrlBreaks
+      { \UrlOrds\eb_add_urlbreak_points: }
+  }
+\tl_const:Nn \c__eb_urlbreak_points_tl
+  {
+    ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    abcdefghijklmnopqrstuvwxyz
+    0123456789
+  }
+\ctex_at_end_preamble:n
+  {
+    \LoadPackage{hyperref}
+    \urlstyle{same}
+    \eb_allow_urlbreak:
+    \ctex_hypersetup:n { pdfstartview = FitH }
+    \exp_args:NV \hypersetup \l__eb_hyperref_clist
+  }
+
+\labelformat{part}{\CTEXthepart}
+\labelformat{chapter}{\CTEXthechapter}
+\labelformat{figure}{\figurename~#1}
+\labelformat{table}{\tablename~#1}
+\cs_if_free:NT \bibname { \cs_set_eq:NN \bibname \refname }
+\tl_if_eq:NnTF \l__ctex_scheme_tl { chinese }
+  {
+    \keys_set_known:nn { ctex }
+      {
+        contentsname        = 目\hspace{\ccwd}录,
+        indexname           = 索\hspace{\ccwd}引,
+        abstractname        = 摘\hspace{\ccwd}要,
+        listfigurename      = 图片索引,
+        listtablename       = 表格索引,
+        lstlistlistingname  = 代码索引,
+        lstlistingname      = 代码
+      }
+    \labelformat{equation}{式（#1）}
+    \labelformat{section}{节 #1}
+    \labelformat{subsection}{小节 #1}
+  }
+  {
+    \keys_set_known:nn { ctex }
+      {
+        abstractname        = Abstract,
+        lstlistlistingname  = List~of~Codes,
+        lstlistingname      = Code
+      }
+    \labelformat{equation}{Equation~(#1)}
+    \labelformat{section}{Section~#1}
+    \labelformat{subsection}{Subsection~#1}
+  }
+%</package>
+%<*tcolorbox>
+\ProvidesExplFile{eb-tcolorbox.cfg}{2021/07/06}{1.26x}
+  {Customization of tcolorbox for easybook}
+
+\cs_new_protected:Npn \eb_tcb_theorem_set:n #1
+  { \tcbset{tc-theorem/.style = {#1}} }
+\cs_new_protected:Npn \eb_tcb_outline_set:n #1
+  { \tcbset{tc-outline/.style = {#1}} }
+\cs_new_protected:Npn \eb_tcb_exercise_set:n #1
+  { \tcbset{tc-exercise/.style = {#1}} }
+\eb_tcb_theorem_set:n
+  {
+    enhanced~jigsaw,pad~at~break* = 3pt,
+    opacityback = 0,
+    colframe = ctex@emph,
+    sharpish~corners,
+    left = 6pt,right = 6pt,top = 8pt,bottom = 8pt,middle= 8pt
+  }
+\eb_tcb_outline_set:n
+  {
+    enhanced,nofloat,
+    tikznode~boxed~title,
+    interior~style = white,colframe = ctex@emph,
+    colbacktitle = white,coltitle = ctex@emph,
+    fonttitle = \large\sffamily,fontupper = \itshape,
+    boxed~title~style = {size = normal,opacityframe = 0,boxrule = 0pt},
+    attach~boxed~title~to~top~center = {yshift = -\tcboxedtitleheight/2},
+    after~skip = 3ex,arc = 3pt,
+    left = 2pc,right = 2pc,top = 1.5pc,bottom = 1pc
+  }
+\eb_tcb_exercise_set:n
+  {
+    blank,on~line,center,
+    sharpish~corners,
+    fontupper = \Large\sffamily,
+    before~skip = 3.75ex,after~skip = 3ex
+  }
+\tcbset
+  {
+    breakable,
+    boxsep    = 0pt,
+    fonttitle = \sffamily,
+    boxrule   = \l__eb_rule_width_dim
+  }
+
+\newtcbox[auto~counter]{\eb@tc@exercise@box}[1]{tc-exercise,#1}
+\tl_new:N \p@eb@exercise
+\tl_new:N \eb@tc@list@prologue
+\cs_new:Npn \exerprologue #1 { \tl_gset:Nn \eb@tc@list@prologue {#1} }
+\cs_new:Npn \tcphanifname #1#2
+  {
+    \tl_gset:Nn \eb@tc@exercise@ifnametrue {#1}
+    \tl_gset:Nn \eb@tc@exercise@ifnamefalse {#2}
+  }
+\tcphanifname
+  {
+    \markright
+      {
+        \eb_tcb_toc_counter_numsep:n { exercise }
+        \eb@tc@exercise@title
+      }
+    \addcontentsline{toc}{section}
+      {
+        \eb_tcb_toc_counter_numsep:n { section }
+        \eb@tc@exercise@title
+      }
+  }{}
+\cs_set:Npn \eb_exercise_label_noempty_use:
+  {
+    \eb_current_label:n { eb@exercise }
+    \tl_if_empty:NF \eb@tc@exercise@label
+      { \exp_args:NV \label \eb@tc@exercise@label }
+  }
+\cs_new:Npn \eb_tcb_toc_counter_numsep:n #1
+  {
+    \thetcbcounter
+    \hspace{\use:c { eb@toc@#1@numsep }}
+  }
+
+\NewDocumentEnvironment{outline}{O{}D(){\abstractname}o+b}
+  {
+    \begin{tcolorbox}[tc-outline,title = #2,IfValueT = {#3}{#3}]
+      \begin{eb@outline@list}[#1]
+        #4
+      \end{eb@outline@list}
+    \end{tcolorbox}
+  }{}
+\NewDocumentEnvironment{exercise}{st+od()O{}+b}
+  {
+    \IfValueT{#3}{ \keys_set:nn { eb/exercise } {#3} }
+    \IfBooleanTF{#2}
+      {
+        \eb@tc@exercise@box
+          {
+            fuzzy~halo  = 5pt~with~\eb@tc@background@color,
+            IfValueT    = {#4}{#4},
+            phantom     =
+              \IfBooleanTF{#1}
+                {\eb@tc@exercise@ifnamefalse}
+                {\eb@tc@exercise@ifnametrue}
+          }{
+            \IfBooleanF{#1}
+              {
+                \eb_tcb_toc_counter_numsep:n { exercise }
+                \tl_set_eq:NN \theeb@exercise \thetcbcounter
+                \eb_exercise_label_noempty_use:
+              }
+            \eb@tc@exercise@title
+          }
+      }{
+        \group_begin:
+        \ctex_set:nn { section } { format += \centering }
+        \IfValueT{#4}{\ctex_set:nn { section } {#4}}
+        \IfBooleanTF{#1}
+          {\section*{\eb@tc@exercise@title}}
+          {\section{\eb@tc@exercise@title}}
+        \tl_set_eq:NN \theeb@exercise \thesection
+        \eb_exercise_label_noempty_use:
+        \group_end:
+      }
+    \tl_if_empty:NF \eb@tc@list@prologue { \eb@tc@list@prologue }
+    \begin{enumerate}[\eb@tc@list@number,labelsep = 0.5\ccwd,#5]
+      #6
+    \end{enumerate}
+    \tl_gclear:N \eb@tc@list@prologue
+  }{}
+\DeclareTColorBox{easybox}{sO{Khaki}d()O{}}
+  {
+    enhanced~jigsaw,pad~at~break* = 3pt,
+    IfBooleanTF = {#1}
+      {toptitle = 8pt,top = 8pt}
+      {frame~hidden,boxrule = 0pt,toptitle = 8pt,top = 0pt},
+    IfValueT = {#3}{title = #3},
+    colback = #2,colbacktitle = #2,
+    opacityback = 0.12,opacitybacktitle = 0.12,
+    coltitle = black,colframe = black,
+    sharpish~corners,
+    left = 6pt,right = 6pt,bottom = 8pt,middle= 8pt,
+    bottomtitle = 8pt,
+    beforeafter~skip = 2ex,
+    halign~upper = left,halign~lower = left,
+    center~title,#4
+  }
+\DeclareTColorBox{ebparbox}{sO{DarkSlateBlue}d()O{}}
+  {
+    frame~hidden,
+    enhanced~jigsaw,pad~at~break* = 3pt,
+    boxrule = 0pt,
+    borderline~west = {3pt}{0pt}{#2},
+    IfBooleanTF = {#1}
+      {
+        colback   = white,
+        IfValueT  = {#3}{title = #3},
+        top = 0pt,bottom = 0pt,toptitle = 0pt
+      }{
+        colback = #2,colbacktitle = #2,
+        opacityback = 0.12,opacitybacktitle = 0.12,
+        IfValueTF = {#3}{title = #3,top = 0pt}{top = 8pt},
+        bottom = 8pt,toptitle = 8pt
+      },
+    left = 8pt,right = 8pt,middle= 8pt,
+    sharpish~corners,
+    bottomtitle = 8pt,
+    beforeafter~skip = 1.5ex,
+    colframe = #2,coltitle = #2,#4
+  }
+\DeclareTotalTCBox{\ebemph}{O{DarkSeaGreen}vO{}}
+  {
+    nobeforeafter,tcbox~raise~base,
+    blank,fuzzy~halo = 2pt~with~#1,#3
+  }{#2}
+\DeclareTotalTCBox{\eblink}{O{Aqua}vO{}}
+  {
+    standard~jigsaw,
+    nobeforeafter,tcbox~raise~base,
+    top = 1.25pt,bottom = 1.25pt,left = 1.25pt,right = 1.25pt,
+    boxrule = 0.75pt,arc = 1pt,
+    colback = #1,opacityback = 0.12,colframe = #1,#3
+  }{#2}
+%</tcolorbox>
+\endinput
